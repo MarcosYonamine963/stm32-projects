@@ -18,7 +18,7 @@ compile with the command: gcc etx_ota_update_main.c RS232\rs232.c -IRS232 -Wall 
 #include <unistd.h>
 #endif
 
-#include "rs232.h"
+#include "RS232/rs232.h"
 
 #define ETX_OTA_MAX_BLOCK_SIZE ( 1024 )
 #define ETX_OTA_MAX_FW_SIZE    ( ETX_OTA_MAX_BLOCK_SIZE * 48 )

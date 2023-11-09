@@ -37,8 +37,8 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define MAJOR 0
-#define MINOR 1
+#define MAJOR 2
+#define MINOR 4
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -102,8 +102,11 @@ int main(void)
   while (1)
   {
 
-	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	  HAL_Delay(1000);
+//	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+	  HAL_Delay(500);
+	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+	  HAL_Delay(500);
 
     /* USER CODE END WHILE */
 

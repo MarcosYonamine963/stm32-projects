@@ -270,7 +270,10 @@ int fputc(int ch, FILE *f)
   return ch;
 }
 
-
+/*
+ * @brief Send 'g' and wait for receive 'r' or timeout
+ * @retval ret: 1 for received 'r', 0 for timeout
+ * */
 static int UART_Write_Loop( void )
 {
   char tx = 'g';
@@ -311,15 +314,16 @@ static int UART_Write_Loop( void )
 
 /**
   * @brief Write data to the Application's actual flash location.
-  * @param data data to be written
-  * @param data_len data length
-  * @is_first_block true - if this is first block, false - not first block
+  * @param[in] data data to be written
+  * @param[in] data_len data length
+  * @is_first_block[in] true - if this is first block, false - not first block
   * @retval HAL_StatusTypeDef
   */
 static HAL_StatusTypeDef write_data_to_flash_app( uint8_t *data,
                                         uint16_t data_len, bool is_first_block )
 {
   HAL_StatusTypeDef ret;
+  static uint32_t nbr_bytes_written = 0;
 
   do
   {
@@ -342,31 +346,47 @@ static HAL_StatusTypeDef write_data_to_flash_app( uint8_t *data,
       EraseInitStruct.NbPages       = 47;                     //47 Pages
 
       ret = HAL_FLASHEx_Erase( &EraseInitStruct, &SectorError );
+      if(SectorError != 0xFFFFFFFF)
+      {
+    	  printf("Flash Erase ERROR\r\n");
+    	  break;
+      }
       if( ret != HAL_OK )
       {
         break;
       }
+      printf("Flash Erased!\r\n");
       application_write_idx = 0;
     }
 
-    for(int i = 0; i < data_len/2; i++)
+    //uint16_t new_len = (data_len % 8) ? (data_len/8 + 1) : data_len/8;
+
+    for(int i = 0; i < data_len/8 ; i++)
     {
-      uint16_t halfword_data = data[i * 2] | (data[i * 2 + 1] << 8);
-      ret = HAL_FLASH_Program( FLASH_TYPEPROGRAM_HALFWORD,
+      uint64_t halfword_data = 	data[i * 8] |
+    		  	  	  	  	   ((uint64_t)(data[i * 8 + 1]) << 8)	|
+							   ((uint64_t)(data[i * 8 + 2]) << 16)	|
+							   ((uint64_t)(data[i * 8 + 3]) << 24)	|
+							   ((uint64_t)(data[i * 8 + 4]) << 32)	|
+							   ((uint64_t)(data[i * 8 + 5]) << 40)	|
+							   ((uint64_t)(data[i * 8 + 6]) << 48)	|
+							   ((uint64_t)(data[i * 8 + 7]) << 56);
+
+      ret = HAL_FLASH_Program( FLASH_TYPEPROGRAM_DOUBLEWORD,
                                (ETX_APP_START_ADDRESS + application_write_idx ),
                                halfword_data
                              );
       if( ret == HAL_OK )
       {
         //update the data count
-        application_write_idx += 2;
+        application_write_idx += 8;
       }
       else
       {
         printf("Flash Write Error...HALT!!!\r\n");
         break;
       }
-    }
+    }// end for
 
     if( ret != HAL_OK )
     {
@@ -379,6 +399,10 @@ static HAL_StatusTypeDef write_data_to_flash_app( uint8_t *data,
       break;
     }
   }while( false );
+
+  nbr_bytes_written += data_len;
+  printf("Written %ld bytes\n", nbr_bytes_written);
+
 
   return ret;
 }
@@ -433,7 +457,8 @@ static void Firmware_Update(void)
           printf("Received Block[%d]\r\n", current_app_size/MAX_BLOCK_SIZE);
 
           //write to flash
-          ex = write_data_to_flash_app(block, MAX_BLOCK_SIZE, (current_app_size <= MAX_BLOCK_SIZE) );
+          i = (i % 8) ? i + 8 - (i%8) : i; // The last block
+          ex = write_data_to_flash_app(block, i, (current_app_size <= MAX_BLOCK_SIZE) ); //TODO i instead of MAX_B
 
           if( ex != HAL_OK )
           {

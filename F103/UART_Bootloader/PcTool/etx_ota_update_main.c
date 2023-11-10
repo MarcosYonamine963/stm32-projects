@@ -21,7 +21,7 @@ compile with the command: gcc etx_ota_update_main.c RS232\rs232.c -IRS232 -Wall 
 #include "RS232/rs232.h"
 
 #define ETX_OTA_MAX_BLOCK_SIZE ( 1024 )
-#define ETX_OTA_MAX_FW_SIZE    ( ETX_OTA_MAX_BLOCK_SIZE * 48 )
+#define ETX_OTA_MAX_FW_SIZE    ( ETX_OTA_MAX_BLOCK_SIZE * 48)
 
 uint8_t APP_BIN[ETX_OTA_MAX_FW_SIZE];
 
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
         printf("Block %d Transmitted...\r\n", i/ETX_OTA_MAX_BLOCK_SIZE);
       }
       
-    }
+    }// end for
 
     if( ex < 0 )
     {

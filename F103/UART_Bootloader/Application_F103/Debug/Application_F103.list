@@ -37,15 +37,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_rnglists 0000051f  00000000  00000000  00018a40  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_macro  00017800  00000000  00000000  00018f5f  2**0
+ 17 .debug_macro  00017806  00000000  00000000  00018f5f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   00007b30  00000000  00000000  0003075f  2**0
+ 18 .debug_line   00007b30  00000000  00000000  00030765  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    00083af2  00000000  00000000  0003828f  2**0
+ 19 .debug_str    00083b07  00000000  00000000  00038295  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .debug_frame  0000219c  00000000  00000000  000bbd84  2**2
+ 20 .debug_frame  0000219c  00000000  00000000  000bbd9c  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000084  00000000  00000000  000bdf20  2**0
+ 21 .debug_line_str 00000086  00000000  00000000  000bdf38  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -132,16 +132,16 @@ int main(void)
  8004578:	f44f 5100 	mov.w	r1, #8192	; 0x2000
  800457c:	480a      	ldr	r0, [pc, #40]	; (80045a8 <main+0x5c>)
  800457e:	f000 fd9b 	bl	80050b8 <HAL_GPIO_WritePin>
-	  HAL_Delay(500);
- 8004582:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
+	  HAL_Delay(DELAY_TIME_VAL);
+ 8004582:	f44f 7096 	mov.w	r0, #300	; 0x12c
  8004586:	f000 fb0b 	bl	8004ba0 <HAL_Delay>
 	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
  800458a:	2200      	movs	r2, #0
  800458c:	f44f 5100 	mov.w	r1, #8192	; 0x2000
  8004590:	4805      	ldr	r0, [pc, #20]	; (80045a8 <main+0x5c>)
  8004592:	f000 fd91 	bl	80050b8 <HAL_GPIO_WritePin>
-	  HAL_Delay(500);
- 8004596:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
+	  HAL_Delay(DELAY_TIME_VAL);
+ 8004596:	f44f 7096 	mov.w	r0, #300	; 0x12c
  800459a:	f000 fb01 	bl	8004ba0 <HAL_Delay>
 	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
  800459e:	e7ea      	b.n	8004576 <main+0x2a>

@@ -37,8 +37,9 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define MAJOR 2
+#define MAJOR 1
 #define MINOR 4
+#define DELAY_TIME_VAL 300
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -104,9 +105,9 @@ int main(void)
 
 //	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-	  HAL_Delay(500);
+	  HAL_Delay(DELAY_TIME_VAL);
 	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-	  HAL_Delay(500);
+	  HAL_Delay(DELAY_TIME_VAL);
 
     /* USER CODE END WHILE */
 

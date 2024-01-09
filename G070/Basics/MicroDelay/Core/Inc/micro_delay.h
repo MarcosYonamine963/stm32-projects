@@ -13,11 +13,11 @@
  *
  * Edit the SysTick_Handler function at file stm32g0xx_it.c:
 
-	volatile uint32_t micro_update_micro;
+	volatile uint32_t micro_update_millis;
 
 	void SysTick_Handler(void)
 	{
-		micro_update_micro++;
+		micro_update_millis++;
 		HAL_IncTick();
 	}
 

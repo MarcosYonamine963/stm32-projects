@@ -23,7 +23,7 @@
 
  * At file micro_delay.c, edit the include line for stm32 correct family
  * Use the functions GetMicros() or GetMicrosFromISR().
- * They work like HAL_GetTick() (or millis() form arduino), but values are in microseconds
+ * They work like HAL_GetTick() (or millis() from arduino), but values are in microseconds
  * */
 
 #ifndef INC_MICRO_DELAY_H_

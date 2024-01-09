@@ -34,3 +34,17 @@ uint32_t micro_get_val_from_ISR()
         ms++;
     return ms * 1000 - st / ((SysTick->LOAD + 1) / 1000);
 }
+
+/*
+ * Blocing function
+ * */
+void micro_delay(uint32_t value)
+{
+	static uint32_t micro_last_val = 0;
+	micro_last_val = micro_get_val_from_ISR();
+	while(micro_get_val_from_ISR() < micro_last_val + value);
+}
+
+
+
+

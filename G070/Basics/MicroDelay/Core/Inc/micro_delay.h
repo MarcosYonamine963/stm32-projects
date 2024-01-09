@@ -40,7 +40,7 @@ extern volatile uint32_t micro_update_millis; // Declared on stmg0xx_it.c
 
 uint32_t micro_get_val();
 uint32_t micro_get_val_from_ISR();
-
+void 	 micro_delay(uint32_t value);
 
 #ifdef __cplusplus
 }

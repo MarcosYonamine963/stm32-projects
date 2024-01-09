@@ -97,14 +97,23 @@ int main(void)
   while (1)
   {
 
-	  /* Example */
-	  static uint32_t micro_last_val = 0;
-	  if(micro_get_val() - micro_last_val > 100000) // 100 ms
-	  {
-		  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+//	  /* Example */
+//	  static uint32_t micro_last_val = 0;
+//	  if(micro_get_val() - micro_last_val > 100000) // 100 ms
+//	  {
+//		  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+//
+//		  micro_last_val = micro_get_val();
+//	  }
 
-		  micro_last_val = micro_get_val();
-	  }
+	  /* Blocking example */
+	  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+	  micro_delay((uint32_t)10);
+	  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+	  micro_delay((uint32_t)600);
+
+
+
 
     /* USER CODE END WHILE */
 

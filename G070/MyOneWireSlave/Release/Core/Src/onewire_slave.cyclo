@@ -1,0 +1,10 @@
+../Core/Src/onewire_slave.c:400:13:onewire_send_bit_one	4
+../Core/Src/onewire_slave.c:377:13:onewire_send_bit_zero	4
+../Core/Src/onewire_slave.c:422:14:onewire_read_bit	4
+../Core/Src/onewire_slave.c:41:6:onewire_init	1
+../Core/Src/onewire_slave.c:53:6:onewire_enable_interrupt	1
+../Core/Src/onewire_slave.c:59:6:onewire_disable_interrupt	1
+../Core/Src/onewire_slave.c:65:7:onewire_verify_presence	3
+../Core/Src/onewire_slave.c:83:7:onewire_communication	22
+../Core/Src/onewire_slave.c:166:6:onewire_exti_rising_handler	1
+../Core/Src/onewire_slave.c:180:6:onewire_exti_falling_handler	1

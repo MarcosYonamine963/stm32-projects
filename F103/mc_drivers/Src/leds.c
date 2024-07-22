@@ -55,3 +55,34 @@ void Leds_Toggle_Red_Led(void)
 {
     led_driver_toggle(&led_red);
 }
+
+
+void Leds_Onboard_Led_ON(void)
+{
+    led_driver_on(&led_onboard);
+}
+
+void Leds_Green_Led_ON(void)
+{
+    led_driver_on(&led_green);
+}
+
+void Leds_Red_Led_ON(void)
+{
+    led_driver_on(&led_red);
+}
+
+void Leds_Onboard_Led_OFF(void)
+{
+    led_driver_off(&led_onboard);
+}
+
+void Leds_Green_Led_OFF(void)
+{
+    led_driver_off(&led_green);
+}
+
+void Leds_Red_Led_OFF(void)
+{
+    led_driver_off(&led_red);
+}

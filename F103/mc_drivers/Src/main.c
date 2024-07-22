@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include "stm32f1xx.h"
+#include "sys_clock.h"
 #include "timer.h"
 #include "leds.h"
 
@@ -27,21 +28,30 @@
 
 int main(void)
 {
-
+    Sys_Clock_Init();
     Timer_Init();
     Leds_Init();
 
-    Timer_Set(TIMER_ONBOARD_LED,  500,  Leds_Toggle_Onboard_Led,  TIMER_MODE_ALWAYS);
-    Timer_Set(TIMER_GREEN_LED,    600,  Leds_Toggle_Green_Led,    TIMER_MODE_ALWAYS);
-    Timer_Set(TIMER_RED_LED,      700,  Leds_Toggle_Red_Led,      TIMER_MODE_ALWAYS);
+    Timer_Set(TIMER_GREEN_LED,    1000,  Leds_Toggle_Green_Led,    TIMER_MODE_ALWAYS);
 
+    Timer_Set(TIMER_RED_LED, 100, Leds_Toggle_Red_Led, TIMER_MODE_ALWAYS);
+
+    uint32_t millis_counter = 0;
 
     while(1)
     {
         Timer_SM();
-    }
+
+        if(Timer_Get_Sys_Tick() - millis_counter > 10000)
+        {
+            Timer_Continue(TIMER_RED_LED);
+            millis_counter = Timer_Get_Sys_Tick();
+        }
+        else if(Timer_Get_Sys_Tick() - millis_counter > 5000)
+        {
+            Timer_Stop(TIMER_RED_LED);
+        }
+    }// end while (1)
 
 }// end main
-
-
 

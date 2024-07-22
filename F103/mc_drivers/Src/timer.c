@@ -7,45 +7,43 @@
 
 #include "stm32f1xx.h"
 #include "timer.h"
+#include "sys_clock.h"  // Just to get system clock value
 
-#define TICK    8000U // Sys clock is 8 Mhz. Set timer clk to 1kHz
 #define FALSE   0
 #define TRUE    1
 
 /*
- * @brief Struct utilizada para gerenciar os timers.
- *
+ * @brief Struct to manage timers.
  */
 typedef struct
 {
-    uint8_t flag;               /**< Flag de ativacao do timer.  */
-    uint8_t timer_mode;               /**< Tipo do Timer. ALWAYS ou ONCE.  */
-    uint32_t timeout;           /**< Timeout do Timer  */
-    uint32_t timer;             /**< Contagem do Timer  */
-    CallbackFunc_t callback;    /**< Callback para a funcao que deve ser executada quando o timer estourar */
+    uint8_t flag;                       /* Activate timer */
+    timer_mode_e timer_mode;            /* Timer type. TIMER_MOMDE_ALWAYS or TIMER_MODE_ONCE */
+    uint32_t timeout;                   /* Timer timeout time*/
+    uint32_t counter;                   /* Timer counter variable */
+    Timer_CallbackFunc_t callback;      /* Callback func to execute on timeout */
 }timer_t;
 
 
 /**
- * @brief Array de structs de timers.
- *
+ * @brief Timers struct array
  */
 timer_t timers[TIMER_N_MAX];
 
-volatile uint32_t systick_time = 0;
+volatile uint32_t systick_time = 0; // Incrementing every 1 ms. Use it with Timer_GetSysTick
 volatile uint32_t delay_time = 0;
 
 /**
- * @brief Funcao de inicializacao dos Timers. Configura a interrupcao do SysTick
- * e zera a flag de todos os timers.
- *
+ * @brief Initialization of the timers. Config the SysTick interrupt and
+ * reset all the timers flags.
  */
 void Timer_Init(void)
 {
     /* https://www.keil.com/pack/doc/CMSIS_Dev/Core/html/group__system__init__gr.html */
-    SysTick_Config(TICK);
+    /* Config SysTick interrupt to 1 kHz. Callback: SysTick_Handler */
+    SysTick_Config(SYS_CLOCK/1000); // Config timer to 1 kHz
 
-    // inicia sem contar nenhum timer ate que ele seja chamado
+    // all timers initialized stopped, until setted by the Timer_Set function
     for (uint8_t i = 0; i < TIMER_N_MAX; i++)
     {
         timers[i].flag = 0;
@@ -54,9 +52,7 @@ void Timer_Init(void)
 }// end Timer_Init
 
 /**
- * @brief Funcao de tratamento da interrupcao do SysTick. Ocorre a cada 1ms e
- * incrementa a contagem de todos os timers.
- *
+ * @brief SysTick interrupt handler. Called every 1 ms. Increment timer counters.
  */
 void SysTick_Handler(void)
 {
@@ -64,40 +60,42 @@ void SysTick_Handler(void)
     delay_time++;
     for (uint8_t i = 0; i < TIMER_N_MAX; i++)
     {
-        timers[i].timer++;
+        if(timers[i].flag)
+        {
+            timers[i].counter++;
+        }
     }
 }// end SysTick_Handler
 
 
 
 /**
- * @brief Funcao para configurar e iniciar um timer.
- *
- * @param i Index do timer no array de timers.
- * @param time Tempo em ms de timeout do timer.
- * @param callback Funcao de callback do timer.
- * @param type Tipo de execucao do timer. ALWAYS ou ONCE.
+ * @brief Config and init a timer.
+ * @param timer_id: [input] Index to timers array.
+ * @param time: [input] time value in ms to timeout.
+ * @param callback: [function pointer] function to be called on timeout.
+ * @param type_mode: [input] Tipo de execucao do timer. ALWAYS ou ONCE.
  */
-void Timer_Set(uint8_t i, uint32_t time, CallbackFunc_t callback, uint8_t timer_mode)
+void Timer_Set(uint8_t timer_id, uint32_t time, Timer_CallbackFunc_t callback, timer_mode_e timer_mode)
 {
-    timers[i].flag = 1;
-    timers[i].timeout = time;
-    timers[i].callback = callback;
-    timers[i].timer_mode = timer_mode;
-    timers[i].timer = 0;
+    timers[timer_id].flag = 1;
+    timers[timer_id].timeout = time;
+    timers[timer_id].callback = callback;
+    timers[timer_id].timer_mode = timer_mode;
+    timers[timer_id].counter = 0;
 }
 
+
 /**
- * @brief Funcao para desativar um timer.
- *
- * @param n_timer Index do timer no array de timers.
- * @return uint8_t Retorna status da operacao.
- */
-uint8_t Timer_Clear(uint8_t n_timer)
+ * @brief Stop the timer.
+ * @param timer_id: [input] index to timer array
+ * @return boolean: status of operation. 1: success, 0: fail
+ * */
+_Bool Timer_Stop(uint8_t timer_id)
 {
-    if ((n_timer >= 0) && (n_timer < TIMER_N_MAX))
+    if ((timer_id >= 0) && (timer_id < TIMER_N_MAX))
     {
-        timers[n_timer].flag = 0;
+        timers[timer_id].flag = 0;
         return TRUE;
     }
     else
@@ -107,9 +105,84 @@ uint8_t Timer_Clear(uint8_t n_timer)
 }
 
 /**
- * @brief Maquina de estados dos timer. Checa se ocorreu timeout em algum timer
- * e executa a funcao de callback.
- *
+ * @brief Continue timer counting from where it stopped
+ * @param timer_id: [input] index to timer array
+ * @return boolean: status of operation. 1: success, 0: fail
+ * */
+_Bool Timer_Continue(uint8_t timer_id)
+{
+    if ((timer_id >= 0) && (timer_id < TIMER_N_MAX))
+    {
+        timers[timer_id].flag = 1;
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+
+}
+
+/**
+ * @brief Restart counting from 0.
+ * @param timer_id: [input] index to timer array
+ * @return boolean: status of operation. 1: success, 0: fail
+ **/
+_Bool Timer_Restart(uint8_t timer_id)
+{
+    if ((timer_id >= 0) && (timer_id < TIMER_N_MAX))
+    {
+        timers[timer_id].flag = 1;
+        timers[timer_id].counter = 0;
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+/**
+ * @brief Get the timer counter value
+ * @param timer_id: [input] index to timer array
+ * @return uint32_t: timer counter value
+ * */
+uint32_t Timer_Get_Counter(uint8_t timer_id)
+{
+    if ((timer_id >= 0) && (timer_id < TIMER_N_MAX))
+    {
+        return timers[timer_id].counter;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+/**
+ * @brief Set the timer counter value
+ * @param timer_id: [input] index to timer array
+ * @param counter: [input] counter value to set
+ * @return boolean: status of operation. 1: success, 0: fail
+ * */
+_Bool Timer_Set_Counter(uint8_t timer_id, uint32_t counter)
+{
+    if ((timer_id >= 0) && (timer_id < TIMER_N_MAX))
+    {
+        timers[timer_id].counter = counter;
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+/**
+ * @brief State Machine for the timers. Check if timer is on timeout and
+ * executes the callback function.
+ * @note run this function on embedded loop (mandatory if using this module)
+ * @note2 don't use blocking functions. It may cause wrong timing values.
  */
 void Timer_SM(void)
 {
@@ -117,7 +190,7 @@ void Timer_SM(void)
     {
         if (timers[i].flag == 1)
         {
-            if (timers[i].timer >= timers[i].timeout)
+            if (timers[i].counter >= timers[i].timeout)
             {
                 if (timers[i].timer_mode == TIMER_MODE_ONCE)
                 {
@@ -125,7 +198,7 @@ void Timer_SM(void)
                 }
                 else if (timers[i].timer_mode == TIMER_MODE_ALWAYS)
                 {
-                    timers[i].timer = 0;
+                    timers[i].counter = 0;
                 }
 
                 (timers[i].callback)();
@@ -134,14 +207,20 @@ void Timer_SM(void)
     }
 }// end Timer_SM
 
+/**
+ * @brief get system clock tick (1 ms)
+ * @return uint32_t systick counter value
+ *
+ * @note use it like Arduino's millis() function
+ * */
+uint32_t Timer_Get_Sys_Tick(void)
+{
+    return systick_time;
+}
 
 /**
- * @brief Funcao de delay, bloqueia o funcionamento do programa pelo tempo
- * especificado.
- *
- * @param t Quantidade de milisegundos que a funcao deve executar.
- *
- * @note Funcao bloqueante: nao recomendado para tempo muito longo
+ * @brief Delay function in milliseconds. Not recommended (this function blocks the processor)
+ * @param t time in milliseconds to block the processor.
  */
 void Delay_ms(uint32_t t)
 {

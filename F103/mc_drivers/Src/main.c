@@ -20,38 +20,55 @@
 #include "stm32f1xx.h"
 #include "sys_clock.h"
 #include "timer.h"
-#include "leds.h"
+#include "gpio.h"
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
+#define LED_ONBOARD_PORT    GPIOC
+#define LED_ONBOARD_PIN     13
+
+#define LED_RED_PORT        GPIOB
+#define LED_RED_PIN         12
+
+#define LED_GREEN_PORT      GPIOB
+#define LED_GREEN_PIN       13
+
+#define BUTTON1_PORT        GPIOB
+#define BUTTON1_PIN         0
+
+#define BUTTON2_PORT        GPIOB
+#define BUTTON2_PIN         1
+
+void config_pins(void);
+
 int main(void)
 {
     Sys_Clock_Init();
     Timer_Init();
-    Leds_Init();
-
-    Timer_Set(TIMER_GREEN_LED,    1000,  Leds_Toggle_Green_Led,    TIMER_MODE_ALWAYS);
-
-    Timer_Set(TIMER_RED_LED, 100, Leds_Toggle_Red_Led, TIMER_MODE_ALWAYS);
-
-    uint32_t millis_counter = 0;
+    config_pins();
 
     while(1)
     {
-        Timer_SM();
 
-        if(Timer_Get_Sys_Tick() - millis_counter > 10000)
-        {
-            Timer_Continue(TIMER_RED_LED);
-            millis_counter = Timer_Get_Sys_Tick();
-        }
-        else if(Timer_Get_Sys_Tick() - millis_counter > 5000)
-        {
-            Timer_Stop(TIMER_RED_LED);
-        }
+        Timer_SM();
+        Gpio_Digital_Write(LED_GREEN_PORT, LED_GREEN_PIN, Gpio_Digital_Read(BUTTON1_PORT, BUTTON1_PIN));
+        Gpio_Digital_Write(LED_RED_PORT,   LED_RED_PIN,   Gpio_Digital_Read(BUTTON2_PORT, BUTTON2_PIN));
+
     }// end while (1)
 
 }// end main
+
+void config_pins(void)
+{
+    Gpio_Config(LED_ONBOARD_PORT, LED_ONBOARD_PIN, OUTPUT_OPEN_DRAIN);
+    Gpio_Config(LED_RED_PORT, LED_RED_PIN, OUTPUT_PUSH_PULL);
+    Gpio_Config(LED_GREEN_PORT, LED_GREEN_PIN, OUTPUT_PUSH_PULL);
+
+    Gpio_Config(BUTTON1_PORT, BUTTON1_PIN, INPUT_PULL_UP);
+    Gpio_Config(BUTTON2_PORT, BUTTON2_PIN, INPUT_PULL_UP);
+
+    Gpio_Digital_Write(LED_ONBOARD_PORT, LED_ONBOARD_PIN, 1); // Turn Onboard Led OFF
+}
 

@@ -8,8 +8,19 @@
 
 #include "exti.h"
 
-void Exti_config_source(exti_line_e line, GPIO_TypeDef *GPIO, exti_trigger_mode_e mode)
+static uint16_t exti_used_lines_flags = 0;
+
+exti_status_e Exti_config_source(exti_line_e line, GPIO_TypeDef *GPIO, exti_trigger_mode_e mode)
 {
+    // Verify if exti line is already in use
+    if(exti_used_lines_flags & (1<<line))
+    {
+        return EXTI_STATUS_ERR_LINE_USED;
+    }
+
+    // Set the used lines flag for the exti line to be configured
+    exti_used_lines_flags |= (1<<(line));
+
     __disable_irq();
 
     // Enable APB2 clock for AFIO
@@ -137,6 +148,8 @@ void Exti_config_source(exti_line_e line, GPIO_TypeDef *GPIO, exti_trigger_mode_
     }
 
     __enable_irq(); // enables all interrupts
+
+    return EXTI_STATUS_OK;
 
 }// end Exti_config_source
 
@@ -303,4 +316,14 @@ void EXTI15_10_IRQHandler()
             Exti_callback_line_15();
             break;
     }
+}
+
+void Exti_Disable_All_Lines()
+{
+    __NVIC_DisableIRQ(EXTI0_IRQn);
+    __NVIC_DisableIRQ(EXTI1_IRQn);
+    __NVIC_DisableIRQ(EXTI3_IRQn);
+    __NVIC_DisableIRQ(EXTI4_IRQn);
+    __NVIC_DisableIRQ(EXTI9_5_IRQn);
+    __NVIC_DisableIRQ(EXTI15_10_IRQn);
 }

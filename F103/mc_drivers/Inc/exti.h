@@ -39,8 +39,14 @@ typedef enum
     EXTI_RISING_FALLING_IT_TRIGGER
 }exti_trigger_mode_e;
 
-void Exti_config_source(exti_line_e line, GPIO_TypeDef *GPIO, exti_trigger_mode_e mode);
-void Exti_config_callback_line(uint8_t line, Exti_CallbackFunc_t callback);
+typedef enum
+{
+    EXTI_STATUS_OK = 0,
+    EXTI_STATUS_ERR_LINE_USED
+}exti_status_e;
 
+exti_status_e Exti_config_source(exti_line_e line, GPIO_TypeDef *GPIO, exti_trigger_mode_e mode);
+void Exti_config_callback_line(uint8_t line, Exti_CallbackFunc_t callback);
+void Exti_Disable_All_Lines();
 
 #endif /* EXTI_H_ */

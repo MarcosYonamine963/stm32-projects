@@ -14,12 +14,13 @@
 /* USER DEFINES */
 
 /* Max nbr of timers */
-#define TIMER_N_MAX     3
+#define TIMER_N_MAX     4
 
 /* List of timers */
 #define TIMER_ONBOARD_LED       0
 #define TIMER_GREEN_LED         1
 #define TIMER_RED_LED           2
+#define TIMER_BUTTON_DEB        3
 
 /*############################################*/
 

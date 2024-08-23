@@ -21,6 +21,7 @@
 #include "sys_clock.h"
 #include "timer.h"
 #include "gpio.h"
+#include "exti.h"
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
@@ -41,7 +42,11 @@
 #define BUTTON2_PORT        GPIOB
 #define BUTTON2_PIN         1
 
+
 void config_pins(void);
+void Button1_exti_callback();
+void Button2_exti_callback();
+
 
 int main(void)
 {
@@ -51,10 +56,7 @@ int main(void)
 
     while(1)
     {
-
         Timer_SM();
-        Gpio_Digital_Write(LED_GREEN_PORT, LED_GREEN_PIN, Gpio_Digital_Read(BUTTON1_PORT, BUTTON1_PIN));
-        Gpio_Digital_Write(LED_RED_PORT,   LED_RED_PIN,   Gpio_Digital_Read(BUTTON2_PORT, BUTTON2_PIN));
 
     }// end while (1)
 
@@ -62,13 +64,44 @@ int main(void)
 
 void config_pins(void)
 {
+    // Config LEDs
     Gpio_Config(LED_ONBOARD_PORT, LED_ONBOARD_PIN, OUTPUT_OPEN_DRAIN);
     Gpio_Config(LED_RED_PORT, LED_RED_PIN, OUTPUT_PUSH_PULL);
     Gpio_Config(LED_GREEN_PORT, LED_GREEN_PIN, OUTPUT_PUSH_PULL);
 
+    Gpio_Digital_Write(LED_ONBOARD_PORT, LED_ONBOARD_PIN, 1); // Turn Onboard Led OFF
+
+    // Config BUTTONS
     Gpio_Config(BUTTON1_PORT, BUTTON1_PIN, INPUT_PULL_UP);
     Gpio_Config(BUTTON2_PORT, BUTTON2_PIN, INPUT_PULL_UP);
 
-    Gpio_Digital_Write(LED_ONBOARD_PORT, LED_ONBOARD_PIN, 1); // Turn Onboard Led OFF
+    Exti_config_source(BUTTON1_PIN, BUTTON1_PORT, EXTI_FALLING_IT_TRIGGER);
+    Exti_config_source(BUTTON2_PIN, BUTTON2_PORT, EXTI_FALLING_IT_TRIGGER);
+
+    Exti_config_callback_line(BUTTON1_PIN, Button1_exti_callback);
+    Exti_config_callback_line(BUTTON2_PIN, Button2_exti_callback);
+
 }
 
+
+void button_callback(void)
+{
+    // If button pressed (not noise)
+    if (!Gpio_Digital_Read(BUTTON1_PORT, BUTTON1_PIN))
+    {
+        // Do button pressed routine
+        Gpio_Digital_Toggle(LED_GREEN_PORT, LED_GREEN_PIN);
+    }
+}// end button_callback
+
+void Button1_exti_callback()
+{
+    // Debouncer
+    Timer_Set(TIMER_BUTTON_DEB, 10, button_callback, TIMER_MODE_ONCE);
+//    Gpio_Digital_Toggle(LED_RED_PORT, LED_RED_PIN);
+}
+
+void Button2_exti_callback()
+{
+    Gpio_Digital_Toggle(LED_RED_PORT, LED_RED_PIN);
+}

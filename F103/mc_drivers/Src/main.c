@@ -18,14 +18,18 @@
 
 #include <stdint.h>
 #include "stm32f1xx.h"
+#include "main.h"
 #include "sys_clock.h"
 #include "timer.h"
 #include "gpio.h"
 #include "exti.h"
+#include "button.h"
+
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
+
 
 #define LED_ONBOARD_PORT    GPIOC
 #define LED_ONBOARD_PIN     13
@@ -36,23 +40,23 @@
 #define LED_GREEN_PORT      GPIOB
 #define LED_GREEN_PIN       13
 
-#define BUTTON1_PORT        GPIOB
-#define BUTTON1_PIN         0
-
-#define BUTTON2_PORT        GPIOB
-#define BUTTON2_PIN         1
 
 
-void config_pins(void);
-void Button1_exti_callback();
-void Button2_exti_callback();
+void Config_Leds(void);
+void error_handler();
 
+void button0_short_callback();  // callback when short pressed Button0
+void button0_long_callback();   // callback when long pressed Button0
+void button0_long_release_callback(); // callback when released after long press
 
 int main(void)
 {
     Sys_Clock_Init();
     Timer_Init();
-    config_pins();
+    Config_Leds();
+    // Config BUTTON
+    Button_config(BUTTON0, BUTTON0_PORT, BUTTON0_PIN, BUTTON_ACTIVE_LOW, 20, 1000,
+            button0_short_callback, button0_long_callback, button0_long_release_callback);
 
     while(1)
     {
@@ -62,7 +66,7 @@ int main(void)
 
 }// end main
 
-void config_pins(void)
+void Config_Leds(void)
 {
     // Config LEDs
     Gpio_Config(LED_ONBOARD_PORT, LED_ONBOARD_PIN, OUTPUT_OPEN_DRAIN);
@@ -70,38 +74,38 @@ void config_pins(void)
     Gpio_Config(LED_GREEN_PORT, LED_GREEN_PIN, OUTPUT_PUSH_PULL);
 
     Gpio_Digital_Write(LED_ONBOARD_PORT, LED_ONBOARD_PIN, 1); // Turn Onboard Led OFF
-
-    // Config BUTTONS
-    Gpio_Config(BUTTON1_PORT, BUTTON1_PIN, INPUT_PULL_UP);
-    Gpio_Config(BUTTON2_PORT, BUTTON2_PIN, INPUT_PULL_UP);
-
-    Exti_config_source(BUTTON1_PIN, BUTTON1_PORT, EXTI_FALLING_IT_TRIGGER);
-    Exti_config_source(BUTTON2_PIN, BUTTON2_PORT, EXTI_FALLING_IT_TRIGGER);
-
-    Exti_config_callback_line(BUTTON1_PIN, Button1_exti_callback);
-    Exti_config_callback_line(BUTTON2_PIN, Button2_exti_callback);
-
 }
 
 
-void button_callback(void)
-{
-    // If button pressed (not noise)
-    if (!Gpio_Digital_Read(BUTTON1_PORT, BUTTON1_PIN))
-    {
-        // Do button pressed routine
-        Gpio_Digital_Toggle(LED_GREEN_PORT, LED_GREEN_PIN);
-    }
-}// end button_callback
-
-void Button1_exti_callback()
-{
-    // Debouncer
-    Timer_Set(TIMER_BUTTON_DEB, 10, button_callback, TIMER_MODE_ONCE);
-//    Gpio_Digital_Toggle(LED_RED_PORT, LED_RED_PIN);
-}
-
-void Button2_exti_callback()
+void button0_short_callback()
 {
     Gpio_Digital_Toggle(LED_RED_PORT, LED_RED_PIN);
+}
+
+void toggle_red_led()
+{
+    Gpio_Digital_Toggle(LED_RED_PORT, LED_RED_PIN);
+}
+
+void button0_long_callback()
+{
+    Timer_Set(TIMER_RED_LED, 100, toggle_red_led, TIMER_MODE_ALWAYS);
+}
+
+void button0_long_release_callback()
+{
+    Timer_Stop(TIMER_RED_LED);
+}
+
+/* BLOCK PROCESSOR IF ERROR OCCUR */
+void error_handler()
+{
+    Exti_Disable_All_Lines();
+    while(1)
+    {
+        Gpio_Digital_Toggle(LED_RED_PORT, LED_RED_PIN);
+        Delay_ms(500);
+        Gpio_Digital_Toggle(LED_RED_PORT, LED_RED_PIN);
+        Delay_ms(500);
+    }
 }

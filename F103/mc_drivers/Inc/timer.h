@@ -13,15 +13,21 @@
 /*############################################*/
 /* USER DEFINES */
 
-/* Max nbr of timers */
-#define TIMER_N_MAX     4
+
 
 /* List of timers */
-#define TIMER_ONBOARD_LED       0
-#define TIMER_GREEN_LED         1
-#define TIMER_RED_LED           2
-#define TIMER_BUTTON_DEB        3
+typedef enum
+{
+    TIMER_ONBOARD_LED = 0,
+    TIMER_GREEN_LED,
+    TIMER_RED_LED,
+    TIMER_BUTTON0_DEB,
+    TIMER_BUTTON0_LONG_PRESS,
+    TIMER_BUTTON1_DEB,
+    TIMER_BUTTON1_LONG_PRESS,
 
+    TIMER_N_MAX
+}timer_list_t;
 /*############################################*/
 
 /* Timer modes: use at Timer_Set function */

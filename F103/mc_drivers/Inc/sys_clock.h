@@ -16,7 +16,7 @@
 #define CLOCK_8MHz       8000000UL
 
 /* Select System Clock to initialize */
-#define SYS_CLOCK       CLOCK_8MHz
+#define SYS_CLOCK       CLOCK_64MHz
 
 void Sys_Clock_Init(void);
 

@@ -16,7 +16,9 @@
  ******************************************************************************
  */
 
+#include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include "stm32f1xx.h"
 #include "main.h"
 #include "sys_clock.h"
@@ -24,6 +26,7 @@
 #include "gpio.h"
 #include "exti.h"
 #include "button.h"
+#include "uart.h"
 
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -40,7 +43,7 @@
 #define LED_GREEN_PORT      GPIOB
 #define LED_GREEN_PIN       13
 
-
+#define DEBUG_UART          USART1
 
 void Config_Leds(void);
 void error_handler();
@@ -54,12 +57,26 @@ int main(void)
     Sys_Clock_Init();
     Timer_Init();
     Config_Leds();
-    // Config BUTTON
+
+    //Config BUTTON
     Button_config(BUTTON0, BUTTON0_PORT, BUTTON0_PIN, BUTTON_ACTIVE_LOW, 20, 1000,
             button0_short_callback, button0_long_callback, button0_long_release_callback);
 
+
+    Uart_config(DEBUG_UART, 115200, UART_NO_REMAP);
+
+    Delay_ms(100);
+
+//    char send_buffer[250];
+//    sprintf(send_buffer, "System init complete\r\n");
+
+    char send_buffer[] = "System init complete\r\n";
+
+    Uart_Transmit(DEBUG_UART, send_buffer, strlen(send_buffer));
+
     while(1)
     {
+
         Timer_SM();
 
     }// end while (1)

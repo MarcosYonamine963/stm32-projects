@@ -24,8 +24,10 @@ void Sys_Clock_Init(void)
        7. Select the Clock Source and wait to become ready.
     */
 
-
-    /* 1. Enable HSE and wait for HSE to become ready */
+    /* 1. Uncomment to Enable HSE and wait for HSE to become ready */
+//    RCC->CR |= RCC_CR_HSEON;
+//    while( !(RCC->CR & RCC_CR_HSERDY) );// when done, HSERDY is set
+    /* 1. Uncomment to Enable HSI and wait for HSI to become ready */
     RCC->CR |= RCC_CR_HSION;
     while( !(RCC->CR & RCC_CR_HSIRDY) );// when done, HSERDY is set
 
@@ -51,13 +53,13 @@ void Sys_Clock_Init(void)
     /* 4. Configure the PRESCALERS HCLK, PCLK1, PCLK2 */
 
     // AHB Prescaler
-//    RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
+    RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
 
     // APB1 Prescaler
     RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
 
     // APB2 Prescaler
-//    RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;
+    RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;
 
 
     /* 5. Configure the MAIN PLL */

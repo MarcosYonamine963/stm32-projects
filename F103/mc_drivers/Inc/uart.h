@@ -1,0 +1,43 @@
+/*
+ * uart.h
+ *
+ *  Created on: Sep 1, 2024
+ *      Author: Mc
+ */
+
+#ifndef UART_H_
+#define UART_H_
+
+#include "stm32f1xx.h"
+
+/*
+ * FOR STM32F103C8T6:
+ *
+ * UART1 REMAP:
+ *      NO_REMAP:       TX/PA9, RX/PA10
+ *      REMAP:          TX/PB6, RX/PB7
+ *
+ * UART2 REMAP:
+ *      NO_REMAP:       TX/PA2, RX/PA3
+ *      REMAP           (UNSUPPORTED FOR STM32F103C8T6)
+ *
+ * UART3 REMAP:
+ *      NO_REMAP:       TX/PB10, RX/PB11
+ *      REMAP           (UNSUPPORTED FOR STM32F103C8T6)
+ * */
+typedef enum
+{
+    UART_NO_REMAP = 0,
+    UART_REMAP,         // UNSUPPORTED FOR UART2
+}uart_remap_e;
+
+
+void Uart_config(USART_TypeDef *UARTx, uint32_t baud, uart_remap_e remap);
+void Uart_WriteChar(USART_TypeDef *UARTx, char ch);
+void Uart_Transmit(USART_TypeDef *UARTx, char *buffer, uint16_t length);
+
+//void Uart1_config(uint32_t baud, uart_remap_e remap);
+//void Uart1_WriteChar(char ch);
+//void Uart1_Transmit(char *buffer, uint16_t length);
+
+#endif /* UART_H_ */

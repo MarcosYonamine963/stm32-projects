@@ -31,13 +31,17 @@ typedef enum
     UART_REMAP,         // UNSUPPORTED FOR UART2
 }uart_remap_e;
 
+typedef enum
+{
+    UART_OK,
+    UART_ERR
+}uart_status_e;
 
 void Uart_config(USART_TypeDef *UARTx, uint32_t baud, uart_remap_e remap);
-void Uart_WriteChar(USART_TypeDef *UARTx, char ch);
-void Uart_Transmit(USART_TypeDef *UARTx, char *buffer, uint16_t length);
+void Uart_WriteChar(USART_TypeDef *UARTx, uint8_t ch);
+void Uart_Transmit(USART_TypeDef *UARTx, uint8_t *buffer, uint16_t length);
 
-//void Uart1_config(uint32_t baud, uart_remap_e remap);
-//void Uart1_WriteChar(char ch);
-//void Uart1_Transmit(char *buffer, uint16_t length);
+uart_status_e Uart_Read_from_buffer(USART_TypeDef *UARTx, uint8_t *read_value);
+
 
 #endif /* UART_H_ */

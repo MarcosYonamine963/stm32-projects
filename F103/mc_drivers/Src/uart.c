@@ -1,5 +1,6 @@
 #include "uart.h"
 #include "sys_clock.h"
+#include "circular_buffer.h"
 
 /*
  * Transmission Procedure:
@@ -36,6 +37,16 @@
 
 /* ####################################################### */
 
+/* PRIVATE VARIABLES */
+
+static circ_buffer_t uart1_buffer = {{0}, 0, 0};
+static circ_buffer_t uart2_buffer = {{0}, 0, 0};
+static circ_buffer_t uart3_buffer = {{0}, 0, 0};
+
+
+/* ####################################################### */
+
+
 /* PRIVATE FUNCTIONS PROTOTYPES */
 
 static void Uart1_config(uint32_t baud, uart_remap_e remap);
@@ -46,6 +57,21 @@ static void Uart3_config(uint32_t baud);
 
 /* EXPORTED FUNCTIONS */
 
+/*
+ * FOR STM32F103C8T6:
+ *
+ * UART1 REMAP:
+ *      NO_REMAP:       TX/PA9, RX/PA10
+ *      REMAP:          TX/PB6, RX/PB7
+ *
+ * UART2 REMAP:
+ *      NO_REMAP:       TX/PA2, RX/PA3
+ *      REMAP           (UNSUPPORTED FOR STM32F103C8T6)
+ *
+ * UART3 REMAP:
+ *      NO_REMAP:       TX/PB10, RX/PB11
+ *      REMAP           (UNSUPPORTED FOR STM32F103C8T6)
+ * */
 void Uart_config(USART_TypeDef *UARTx, uint32_t baud, uart_remap_e remap)
 {
     switch((uint32_t)UARTx)
@@ -63,7 +89,7 @@ void Uart_config(USART_TypeDef *UARTx, uint32_t baud, uart_remap_e remap)
 }
 
 
-void Uart_WriteChar(USART_TypeDef *UARTx, char ch)
+void Uart_WriteChar(USART_TypeDef *UARTx, uint8_t ch)
 {
     /*Make sure the transmit data register is empty*/
     while(!(UARTx->SR & USART_SR_TXE)){}
@@ -72,13 +98,64 @@ void Uart_WriteChar(USART_TypeDef *UARTx, char ch)
     UARTx->DR  =  (ch & 0xFF);
 }
 
-void Uart_Transmit(USART_TypeDef *UARTx, char *buffer, uint16_t length)
+void Uart_Transmit(USART_TypeDef *UARTx, uint8_t *buffer, uint16_t length)
 {
     for(uint16_t i = 0; i < length; i++)
     {
         Uart_WriteChar(UARTx, buffer[i]);
     }
 }
+
+/* @brief Read a received byte
+ * @param UARTx: USART1, USART2 or USART3
+ * @param read_value: pointer to read data
+ *
+ * @ret UART_OK or UART_ERR
+ * */
+uart_status_e Uart_Read_from_buffer(USART_TypeDef *UARTx, uint8_t *read_value)
+{
+    switch((uint32_t)UARTx)
+    {
+        case (uint32_t)USART1:
+            if( Buffer_Read(&uart1_buffer, read_value) == BUFFER_OK)
+            {
+                return UART_OK;
+            }
+            else
+            {
+                return UART_ERR;
+            }
+            break;
+
+        case (uint32_t)USART2:
+
+            if( Buffer_Read(&uart2_buffer, read_value) == BUFFER_OK)
+            {
+                return UART_OK;
+            }
+            else
+            {
+                return UART_ERR;
+            }
+            break;
+
+        case (uint32_t)USART3:
+
+            if( Buffer_Read(&uart3_buffer, read_value) == BUFFER_OK)
+            {
+                return UART_OK;
+            }
+            else
+            {
+                return UART_ERR;
+            }
+            break;
+
+        default:
+            return UART_ERR;
+    }
+}// end Uart_Read_from_buffer
+
 
 /* ####################################################### */
 
@@ -136,14 +213,23 @@ static void Uart1_config(uint32_t baud, uart_remap_e remap)
     }
 
 
-    //Transmit Enable
+    // Transmit Enable
     USART1->CR1 |= USART_CR1_TE;
+
+    // Receive Enable
+    USART1->CR1 |= USART_CR1_RE;
 
     // Config Mantissa and Fraction
     USART1->BRR =  ((SYS_CLOCK + (baud/2U))/baud);
 
     // Enable Uart 1
     USART1->CR1 |= USART_CR1_UE;
+
+    // RXNE Interrupt Enable
+    USART1->CR1 |= USART_CR1_RXNEIE;
+
+    // Enable USART Interrupt
+    NVIC_EnableIRQ(USART1_IRQn);
 }
 
 static void Uart2_config(uint32_t baud)
@@ -172,11 +258,20 @@ static void Uart2_config(uint32_t baud)
     //Transmit Enable
     USART2->CR1 |= USART_CR1_TE;
 
+    // Receive Enable
+    USART2->CR1 |= USART_CR1_RE;
+
     // Config Mantissa and Fraction
     USART2->BRR =  (((SYS_CLOCK/2) + (baud/2U))/baud);
 
     // Enable Uart
     USART2->CR1 |= USART_CR1_UE;
+
+    // RXNE Interrupt Enable
+    USART2->CR1 |= USART_CR1_RXNEIE;
+
+    // Enable USART Interrupt
+    NVIC_EnableIRQ(USART2_IRQn);
 }
 
 
@@ -208,9 +303,58 @@ static void Uart3_config(uint32_t baud)
     //Transmit Enable
     USART3->CR1 |= USART_CR1_TE;
 
+    // Receive Enable
+    USART3->CR1 |= USART_CR1_RE;
+
     // Config Mantissa and Fraction
     USART3->BRR =  (((SYS_CLOCK/2) + (baud/2U))/baud);
 
     // Enable Uart
     USART3->CR1 |= USART_CR1_UE;
+
+    // RXNE Interrupt Enable
+    USART3->CR1 |= USART_CR1_RXNEIE;
+
+    // Enable USART Interrupt
+    NVIC_EnableIRQ(USART3_IRQn);
+}
+
+/* ####################################################### */
+
+/* INTERRUPT HANDLERS */
+
+void USART1_IRQHandler(void)
+{
+    uint8_t usart_byte_in;
+
+    // RXNE: Received data ready to be read
+    if( (USART1->SR & USART_SR_RXNE) == USART_SR_RXNE )
+    {
+        usart_byte_in = (uint8_t)USART1->DR;
+        Buffer_Write(&uart1_buffer, usart_byte_in);
+    }
+}
+
+void USART2_IRQHandler(void)
+{
+    uint8_t usart_byte_in;
+
+    // RXNE: Received data ready to be read
+    if ((USART2->SR & USART_SR_RXNE) == USART_SR_RXNE)
+    {
+        usart_byte_in = (uint8_t)USART2->DR;
+        Buffer_Write(&uart2_buffer, usart_byte_in);
+    }
+}
+
+void USART3_IRQHandler(void)
+{
+    uint8_t usart_byte_in;
+
+    // RXNE: Received data ready to be read
+    if ((USART3->SR & USART_SR_RXNE) == USART_SR_RXNE)
+    {
+        usart_byte_in = (uint8_t)USART3->DR;
+        Buffer_Write(&uart3_buffer, usart_byte_in);
+    }
 }

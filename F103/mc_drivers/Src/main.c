@@ -43,7 +43,13 @@
 #define LED_GREEN_PORT      GPIOB
 #define LED_GREEN_PIN       13
 
-#define DEBUG_UART          USART1
+#define DEBUG_UART          USART2
+
+
+/* Temp var */
+uint8_t temp_uart_read_val = 0;
+
+
 
 void Config_Leds(void);
 void error_handler();
@@ -59,7 +65,7 @@ int main(void)
     Config_Leds();
 
     //Config BUTTON
-    Button_config(BUTTON0, BUTTON0_PORT, BUTTON0_PIN, BUTTON_ACTIVE_LOW, 20, 1000,
+    Button_config(BUTTON0, BUTTON0_PORT, BUTTON0_PIN, BUTTON_ACTIVE_LOW, 20, 1000,      \
             button0_short_callback, button0_long_callback, button0_long_release_callback);
 
 
@@ -67,17 +73,20 @@ int main(void)
 
     Delay_ms(100);
 
-//    char send_buffer[250];
-//    sprintf(send_buffer, "System init complete\r\n");
+    uint8_t send_buffer[] = "System init complete\r\n";
 
-    char send_buffer[] = "System init complete\r\n";
-
-    Uart_Transmit(DEBUG_UART, send_buffer, strlen(send_buffer));
+    Uart_Transmit(DEBUG_UART, send_buffer, strlen((char *)send_buffer));
 
     while(1)
     {
 
         Timer_SM();
+
+        if(UART_OK == Uart_Read_from_buffer(DEBUG_UART, &temp_uart_read_val))
+        {
+            Uart_Transmit(DEBUG_UART, &temp_uart_read_val, 1); // echo
+        }
+
 
     }// end while (1)
 

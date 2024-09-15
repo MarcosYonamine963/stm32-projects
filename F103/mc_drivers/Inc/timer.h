@@ -11,9 +11,14 @@
 #include "stdint.h"
 
 /*############################################*/
-/* USER DEFINES */
 
-
+#define TIME_10MS   10
+#define TIME_50MS   50
+#define TIME_100MS  100
+#define TIME_500MS  500
+#define TIME_1S     1000
+#define TIME_2S     2000
+#define TIME_5S     5000
 
 /* List of timers */
 typedef enum
@@ -25,6 +30,7 @@ typedef enum
     TIMER_BUTTON0_LONG_PRESS,
     TIMER_BUTTON1_DEB,
     TIMER_BUTTON1_LONG_PRESS,
+    TIMER_BUZZER,
 
     TIMER_N_MAX
 }timer_list_t;

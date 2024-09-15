@@ -16,122 +16,125 @@
  ******************************************************************************
  */
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include "stm32f1xx.h"
 #include "main.h"
-#include "sys_clock.h"
-#include "timer.h"
-#include "gpio.h"
-#include "exti.h"
-#include "button.h"
-#include "uart.h"
+
+// ####################################################################################
+
+/* PRIVATE GLOBAL VARIABLES */
+static uint8_t debug_buffer[1024];  // buffer to send data
 
 
-#if !defined(__SOFT_FP__) && defined(__ARM_FP)
-  #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
-#endif
+// ####################################################################################
 
+/* PRIVATE FUNCTIONS PROTOTYPES */
+static void debug_send_msg(uint8_t *msg, uint8_t size);
 
-#define LED_ONBOARD_PORT    GPIOC
-#define LED_ONBOARD_PIN     13
+static void button0_short_callback();           // callback when short pressed Button0
+static void button0_long_callback();            // callback when long pressed Button0
+static void button0_long_release_callback();    // callback when released after long press
 
-#define LED_RED_PORT        GPIOB
-#define LED_RED_PIN         12
+static void button1_short_callback();           // callback when short pressed Button1
+static void button1_long_callback();            // callback when long pressed Button1
+static void button1_long_release_callback();    // callback when released after long press
 
-#define LED_GREEN_PORT      GPIOB
-#define LED_GREEN_PIN       13
-
-#define DEBUG_UART          USART2
-
-
-/* Temp var */
-uint8_t temp_uart_read_val = 0;
-
-
-
-void Config_Leds(void);
-void error_handler();
-
-void button0_short_callback();  // callback when short pressed Button0
-void button0_long_callback();   // callback when long pressed Button0
-void button0_long_release_callback(); // callback when released after long press
+// ####################################################################################
 
 int main(void)
 {
+    // Config System Clock to 64 MHz
     Sys_Clock_Init();
-    Timer_Init();
-    Config_Leds();
 
-    //Config BUTTON
+    // Config Timers
+    Timer_Init();
+
+    // Config Leds
+    Leds_Config();
+
+    // Config BUTTONS
     Button_config(BUTTON0, BUTTON0_PORT, BUTTON0_PIN, BUTTON_ACTIVE_LOW, 20, 1000,      \
             button0_short_callback, button0_long_callback, button0_long_release_callback);
 
+    Button_config(BUTTON1, BUTTON1_PORT, BUTTON1_PIN, BUTTON_ACTIVE_LOW, 20, 1000,      \
+            button1_short_callback, button1_long_callback, button1_long_release_callback);
 
-    Uart_config(DEBUG_UART, 115200, UART_NO_REMAP);
+    // Config Buzzer
+    Buzzer_Config(BUZZER_PORT, BUZZER_PIN);
 
-    Delay_ms(100);
+    // Config Main Uart
+    Uart_config(UART_MAIN, 115200, UART_NO_REMAP);
 
-    uint8_t send_buffer[] = "System init complete\r\n";
+    // Config Debug Uart
+    Uart_config(UART_DEBUG, 1200, UART_NO_REMAP);
 
-    Uart_Transmit(DEBUG_UART, send_buffer, strlen((char *)send_buffer));
+
+    //Delay_ms(100);
+
+    sprintf((char *)debug_buffer, "System init complete\r\n");
+    debug_send_msg(debug_buffer, strlen((char *)debug_buffer));
 
     while(1)
     {
+        uint8_t debug_read_val = 0;
 
         Timer_SM();
-
-        if(UART_OK == Uart_Read_from_buffer(DEBUG_UART, &temp_uart_read_val))
+        if(Uart_Read_from_buffer(UART_DEBUG, &debug_read_val) == UART_OK)
         {
-            Uart_Transmit(DEBUG_UART, &temp_uart_read_val, 1); // echo
+            Uart_Transmit(UART_DEBUG, debug_read_val, 1); // echo
         }
-
 
     }// end while (1)
 
 }// end main
 
-void Config_Leds(void)
-{
-    // Config LEDs
-    Gpio_Config(LED_ONBOARD_PORT, LED_ONBOARD_PIN, OUTPUT_OPEN_DRAIN);
-    Gpio_Config(LED_RED_PORT, LED_RED_PIN, OUTPUT_PUSH_PULL);
-    Gpio_Config(LED_GREEN_PORT, LED_GREEN_PIN, OUTPUT_PUSH_PULL);
+/* PRIVATE FUNCTIONS */
 
-    Gpio_Digital_Write(LED_ONBOARD_PORT, LED_ONBOARD_PIN, 1); // Turn Onboard Led OFF
+static void button0_short_callback()
+{
+    Leds_Red_Led_Toggle();
 }
-
-
-void button0_short_callback()
+static void button0_long_callback()
 {
-    Gpio_Digital_Toggle(LED_RED_PORT, LED_RED_PIN);
-}
-
-void toggle_red_led()
-{
-    Gpio_Digital_Toggle(LED_RED_PORT, LED_RED_PIN);
-}
-
-void button0_long_callback()
-{
-    Timer_Set(TIMER_RED_LED, 100, toggle_red_led, TIMER_MODE_ALWAYS);
-}
-
-void button0_long_release_callback()
-{
-    Timer_Stop(TIMER_RED_LED);
-}
-
-/* BLOCK PROCESSOR IF ERROR OCCUR */
-void error_handler()
-{
-    Exti_Disable_All_Lines();
-    while(1)
+    static uint8_t blinking_flag = 0;
+    if(blinking_flag)
     {
-        Gpio_Digital_Toggle(LED_RED_PORT, LED_RED_PIN);
-        Delay_ms(500);
-        Gpio_Digital_Toggle(LED_RED_PORT, LED_RED_PIN);
-        Delay_ms(500);
+        Timer_Stop(TIMER_GREEN_LED);
+        Leds_Green_Led_OFF();
+        blinking_flag = 0;
+    }
+    else
+    {
+        Timer_Set(TIMER_GREEN_LED, TIME_500MS, Leds_Green_Led_Toggle, TIMER_MODE_ALWAYS);
+        blinking_flag = 1;
     }
 }
+static void button0_long_release_callback()
+{
+
+}
+
+static void button1_short_callback()
+{
+    Buzzer_short_beep(4);
+}
+static void button1_long_callback()
+{
+    Buzzer_long_beep(4);
+}
+static void button1_long_release_callback()
+{
+
+}
+
+static void debug_send_msg(uint8_t *msg, uint8_t size)
+#ifdef DEBUG_ENABLE
+{
+    Uart_Transmit(UART_DEBUG, msg, size);
+}
+#else
+{
+    // do nothing
+}
+#endif
+
+// ####################################################################################
+

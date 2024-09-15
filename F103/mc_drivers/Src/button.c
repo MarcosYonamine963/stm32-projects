@@ -31,7 +31,14 @@ typedef struct
 
 button_t buttons[BUTTON_N_MAX];
 
-
+/*
+ * @brief Do nothing
+ * @note Use this function on Button_config to fill callback function when you want to do nothing
+ */
+void Button_no_callback(void)
+{
+    // do nothing
+}
 
 void Button_config(button_list_e button_id, GPIO_TypeDef *GPIO, uint8_t PIN, button_active_level_e active_level,
         uint8_t deb_time, uint32_t long_press_time,

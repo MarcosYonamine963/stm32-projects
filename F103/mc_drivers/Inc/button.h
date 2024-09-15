@@ -11,14 +11,6 @@
 #include <stdint.h>
 #include "stm32f1xx.h"
 
-#define BUTTON0_PORT    GPIOB
-#define BUTTON0_PIN     0
-
-#define BUTTON1_PORT    GPIOB
-#define BUTTON1_PIN     1
-
-
-
 typedef enum
 {
     BUTTON0 = 0,
@@ -47,5 +39,7 @@ void Button_config(button_list_e button_id, GPIO_TypeDef *GPIO, uint8_t PIN, but
         Button_CallbackFunc_t short_callback, Button_CallbackFunc_t long_callback, Button_CallbackFunc_t long_press_release_callback);
 
 button_state_e Button_get_state(button_list_e button_id);
+
+void Button_no_callback(void);
 
 #endif /* BUTTON_H_ */

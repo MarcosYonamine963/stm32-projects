@@ -54,7 +54,7 @@ void Encoder_Config_clk(GPIO_TypeDef *GPIOx, uint8_t PIN)
 {
     encoder.clk.PORT = GPIOx;
     encoder.clk.PIN = PIN;
-    Gpio_Config(GPIOx, PIN, INPUT_PULL_UP);
+    Gpio_Config(GPIOx, PIN, INPUT_FLOATING);
     Exti_config_source(PIN, GPIOx, EXTI_RISING_FALLING_IT_TRIGGER);
     Exti_config_callback_line(PIN, __encoder_clk_pin_callback);
 }

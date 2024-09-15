@@ -30,7 +30,7 @@
 #define DEBUG_ENABLE        // comment this line to disable uart debug transmissions
 
 #define UART_MAIN           USART1
-#define UART_DEBUG          USART2
+#define UART_DEBUG          USART1
 
 #define BUTTON0_PORT        GPIOB
 #define BUTTON0_PIN         0

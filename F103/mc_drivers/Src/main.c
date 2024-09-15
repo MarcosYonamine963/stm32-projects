@@ -59,6 +59,9 @@ int main(void)
     // Config Leds
     Leds_Config();
 
+    // Config Encoder
+    encoder_config();
+
     // Config BUTTONS
     Button_config(BUTTON0, BUTTON0_PORT, BUTTON0_PIN, BUTTON_ACTIVE_LOW, 20, 1000,      \
             button0_short_callback, button0_long_callback, button0_long_release_callback);
@@ -69,8 +72,6 @@ int main(void)
     // Config Buzzer
     Buzzer_Config(BUZZER_PORT, BUZZER_PIN);
 
-    // Config Encoder
-    encoder_config();
 
     // Config Main Uart
     Uart_config(UART_MAIN, 115200, UART_NO_REMAP);
@@ -87,6 +88,7 @@ int main(void)
     while(1)
     {
         uint8_t debug_read_val = 0;
+
 
         Timer_SM();
         if(Uart_Read_from_buffer(UART_DEBUG, &debug_read_val) == UART_OK)

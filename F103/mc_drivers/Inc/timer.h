@@ -23,7 +23,8 @@
 /* List of timers */
 typedef enum
 {
-    TIMER_ONBOARD_LED = 0,
+    TIMER_ENCODER_SW_DEB,
+    TIMER_ONBOARD_LED,
     TIMER_GREEN_LED,
     TIMER_RED_LED,
     TIMER_BUTTON0_DEB,

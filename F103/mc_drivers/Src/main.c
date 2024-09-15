@@ -16,13 +16,18 @@
  ******************************************************************************
  */
 
+/*
+ *  ATTENTION: The rotary encoder worked fine with 1uF capacitor on pins CLK and DT
+ */
+
+
 #include "main.h"
 
 // ####################################################################################
 
 /* PRIVATE GLOBAL VARIABLES */
 static uint8_t debug_buffer[1024];  // buffer to send data
-
+static uint8_t counter;
 
 // ####################################################################################
 
@@ -37,6 +42,10 @@ static void button1_short_callback();           // callback when short pressed B
 static void button1_long_callback();            // callback when long pressed Button1
 static void button1_long_release_callback();    // callback when released after long press
 
+static void encoder_clkwise_callback();
+static void encoder_counter_clkwise_callback();
+static void encoder_sw_callback();
+static void encoder_config();
 // ####################################################################################
 
 int main(void)
@@ -60,11 +69,14 @@ int main(void)
     // Config Buzzer
     Buzzer_Config(BUZZER_PORT, BUZZER_PIN);
 
+    // Config Encoder
+    encoder_config();
+
     // Config Main Uart
     Uart_config(UART_MAIN, 115200, UART_NO_REMAP);
 
     // Config Debug Uart
-    Uart_config(UART_DEBUG, 1200, UART_NO_REMAP);
+    Uart_config(UART_DEBUG, 115200, UART_NO_REMAP);
 
 
     //Delay_ms(100);
@@ -79,7 +91,7 @@ int main(void)
         Timer_SM();
         if(Uart_Read_from_buffer(UART_DEBUG, &debug_read_val) == UART_OK)
         {
-            Uart_Transmit(UART_DEBUG, debug_read_val, 1); // echo
+            Uart_Transmit(UART_DEBUG, &debug_read_val, 1); // echo
         }
 
     }// end while (1)
@@ -124,6 +136,52 @@ static void button1_long_release_callback()
 {
 
 }
+
+
+
+static void encoder_clkwise_callback()
+{
+    counter++;
+    sprintf((char *)debug_buffer, "CLOCKWISE: %d\r\n", counter);
+    Uart_Transmit(UART_DEBUG, debug_buffer, strlen((char *)debug_buffer));
+}
+
+static void encoder_counter_clkwise_callback()
+{
+    counter--;
+    sprintf((char *)debug_buffer, "COUNTERCLOCKWISE %d\r\n", counter);
+    debug_send_msg(debug_buffer, strlen((char *)debug_buffer));
+
+}
+
+
+static void encoder_sw_callback()
+{
+    sprintf((char *)debug_buffer, "Selected!\r\n");
+    debug_send_msg(debug_buffer, strlen((char *)debug_buffer));
+}
+
+
+static void encoder_config()
+{
+    Encoder_Config_callbacks(encoder_clkwise_callback, encoder_counter_clkwise_callback, encoder_sw_callback);
+
+    Encoder_Config_clk(ENCODER_CLK_PORT, ENCODER_CLK_PIN);
+    Encoder_Config_dt(ENCODER_DT_PORT, ENCODER_DT_PIN);
+    Encoder_Config_sw(ENCODER_SW_PORT, ENCODER_SW_PIN);
+
+    Encoder_Init();
+}
+
+
+
+
+
+
+
+
+
+
 
 static void debug_send_msg(uint8_t *msg, uint8_t size)
 #ifdef DEBUG_ENABLE

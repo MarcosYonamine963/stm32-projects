@@ -96,10 +96,12 @@ exti_status_e Exti_config_source(exti_line_e line, GPIO_TypeDef *GPIO, exti_trig
     switch(mode)
     {
         case EXTI_RISING_IT_TRIGGER:
-            EXTI->RTSR |= (0x01)<<line;
+            EXTI->RTSR |=  (0x01)<<line;
+            EXTI->FTSR &= ~(0x01)<<line;
             break;
         case EXTI_FALLING_IT_TRIGGER:
-            EXTI->FTSR |= (0x01)<<line;
+            EXTI->RTSR &= ~(0x01)<<line;
+            EXTI->FTSR |=  (0x01)<<line;
             break;
         case EXTI_RISING_FALLING_IT_TRIGGER:
             EXTI->RTSR |= (0x01)<<line;

@@ -20,6 +20,7 @@
 #include "uart.h"
 #include "buzzer.h"
 #include "leds.h"
+#include "encoder.h"
 
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -40,5 +41,11 @@
 #define BUZZER_PORT         GPIOB
 #define BUZZER_PIN          14
 
+#define ENCODER_CLK_PORT    GPIOB
+#define ENCODER_CLK_PIN     3
+#define ENCODER_DT_PORT     GPIOB
+#define ENCODER_DT_PIN      4
+#define ENCODER_SW_PORT     GPIOB
+#define ENCODER_SW_PIN      5
 
 #endif /* MAIN_H_ */

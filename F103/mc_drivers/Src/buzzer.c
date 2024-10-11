@@ -1,10 +1,3 @@
-/*
- * buzzer.c
- *
- *  Created on: Sep 14, 2024
- *      Author: Mc
- */
-
 #include "buzzer.h"
 #include "gpio.h"
 #include "timer.h"
@@ -29,7 +22,8 @@ typedef enum
 {
     BUZZER_IDLE,
     BUZZER_SHORT_BEEP,
-    BUZZER_LONG_BEEP
+    BUZZER_LONG_BEEP,
+    BUZZER_CONTINUOUS
 }buzzer_state_e;
 
 /* Buzzer struct */
@@ -86,6 +80,16 @@ void Buzzer_long_beep(uint8_t beeps)
     buzzer.beeps = beeps;
     beeps_counter = 0;
     buzzer.new_state = BUZZER_LONG_BEEP;
+}
+
+void Buzzer_on(void)
+{
+    buzzer.new_state = BUZZER_CONTINUOUS;
+}
+
+void Buzzer_off(void)
+{
+    buzzer.new_state = BUZZER_IDLE;
 }
 
 /*
@@ -190,6 +194,19 @@ static void Buzzer_Callback(void)
                 buzzer.beeps = 0;
             }
 
+            break;
+
+        case BUZZER_CONTINUOUS:
+
+            if(buzzer.state != buzzer.new_state)
+            {
+                BUZZER_OFF;
+                time_counter = 0;
+                beeps_counter = 0;
+                buzzer.state = buzzer.new_state;
+                break;
+            }
+            BUZZER_ON;
             break;
 
     }// end  switch(buzzer.state)

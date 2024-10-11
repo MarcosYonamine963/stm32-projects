@@ -30,4 +30,6 @@ void Gpio_Digital_Write(GPIO_TypeDef *GPIO, uint8_t Pin, _Bool state);
 void Gpio_Digital_Toggle(GPIO_TypeDef *GPIO, uint8_t Pin);
 _Bool Gpio_Digital_Read(GPIO_TypeDef *GPIO, uint8_t Pin);
 
+void Gpio_Change_Pin_Mode(GPIO_TypeDef *GPIO, uint8_t Pin, gpio_mode_e mode);
+
 #endif /* GPIO_H_ */

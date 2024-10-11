@@ -95,6 +95,58 @@ void Gpio_Config(GPIO_TypeDef *GPIO, uint8_t Pin, gpio_mode_e mode)
 
 }// end Gpio_Config
 
+void Gpio_Change_Pin_Mode(GPIO_TypeDef *GPIO, uint8_t Pin, gpio_mode_e mode)
+{
+
+    uint32_t mode_mask = 0;     // bit mask for set CNF and MODE bits on CRL or CRH register
+                                // see section 9.2 on reference manual
+
+    switch(mode)
+    {
+        case OUTPUT_OPEN_DRAIN:
+            mode_mask = 0b0111;
+            break;
+        case OUTPUT_PUSH_PULL:
+            mode_mask = 0b0011;
+            break;
+        case INPUT_ANALOG:
+            mode_mask = 0b0000;
+            break;
+        case INPUT_FLOATING:
+            mode_mask = 0b0100;
+            break;
+        case INPUT_PULL_UP:
+        case INPUT_PULL_DOWN:
+            mode_mask = 0b1000;
+            break;
+        default:
+            break;
+    }// end switch mode
+
+    /* Config the pin (CRH or CRL) */
+    if(Pin > 7)  // Configuration Register High
+    {
+        GPIO->CRH &= ~(0b1111    << ((Pin-8)*4) );   // Reset pin to 0b0000
+        GPIO->CRH |=  (mode_mask << ((Pin-8)*4) );   // Config the pin
+    }
+    else // Configuration Register Low
+    {
+        GPIO->CRL &= ~(0b1111    << (Pin*4) );   // Reset pin to 0b0000
+        GPIO->CRL |=  (mode_mask << (Pin*4) );   // Config the pin
+    }
+
+    /* Config Input modes (Pull up or Pull down) */
+    /* According to Table 20 on Reference Manual */
+    if(mode == INPUT_PULL_UP)
+    {
+        GPIO->ODR |= (1<<Pin);
+    }
+    else if(mode == INPUT_PULL_DOWN)
+    {
+        GPIO->ODR &= ~(1<<Pin);
+    }
+}
+
 void Gpio_Digital_Write(GPIO_TypeDef *GPIO, uint8_t Pin, _Bool state)
 {
     if(state)   // set pin

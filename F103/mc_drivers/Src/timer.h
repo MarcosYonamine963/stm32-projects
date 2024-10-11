@@ -32,6 +32,9 @@ typedef enum
     TIMER_GREEN_LED,
     TIMER_RED_LED,
     TIMER_ENCODER_SW_DEB,
+    TIMER_TM1637_DOT_BLINK,
+    TIMER_TM1637_HOUR_DIGIT_BLINK,
+    TIMER_TM1637_MINUTE_DIGIT_BLINK,
 
     TIMER_N_MAX
 }timer_list_t;
@@ -57,7 +60,9 @@ _Bool Timer_Set_Counter(uint8_t timer_id, uint32_t counter);
 void  Timer_SM(void);
 
 uint32_t Timer_Get_Sys_Tick(void);
+uint32_t Timer_Get_10us_Tick(void);
 
-void  Delay_ms(uint32_t t); // not recommended for using this function
+void  Delay_ms(uint32_t t);  // not recommended for using this function
+void Delay_10us(uint32_t t); // not recommended for using this function
 
 #endif /* TIMER_H_ */

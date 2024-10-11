@@ -30,8 +30,8 @@ typedef struct
  */
 timer_t timers[TIMER_N_MAX];
 
-volatile uint32_t systick_time = 0; // Incrementing every 1 ms. Use it with Timer_GetSysTick
-volatile uint32_t delay_time = 0;
+volatile uint32_t systick_time = 0;     // Incremented every 1 ms
+volatile uint32_t us_delay_time = 0;    // Incremented every 10 us
 
 /**
  * @brief Initialization of the timers. Config the SysTick interrupt and
@@ -41,7 +41,7 @@ void Timer_Init(void)
 {
     /* https://www.keil.com/pack/doc/CMSIS_Dev/Core/html/group__system__init__gr.html */
     /* Config SysTick interrupt to 1 kHz. Callback: SysTick_Handler */
-    SysTick_Config(SYS_CLOCK/1000); // Config timer to 1 kHz
+    SysTick_Config( 640 ); // Config timer to 100 KHz (inc every 10us)
 
     // all timers initialized stopped, until setted by the Timer_Set function
     for (uint8_t i = 0; i < TIMER_N_MAX; i++)
@@ -52,19 +52,28 @@ void Timer_Init(void)
 }// end Timer_Init
 
 /**
- * @brief SysTick interrupt handler. Called every 1 ms. Increment timer counters.
+ * @brief SysTick interrupt handler. Called every 10 us. Increment timer counters.
  */
 void SysTick_Handler(void)
 {
-    systick_time++;
-    delay_time++;
-    for (uint8_t i = 0; i < TIMER_N_MAX; i++)
+
+    us_delay_time++;
+
+    if(us_delay_time % 100 == 0) //1 ms
     {
-        if(timers[i].flag)
+        systick_time++;
+
+        // increment all timer's counters
+        for (uint8_t i = 0; i < TIMER_N_MAX; i++)
         {
-            timers[i].counter++;
-        }
-    }
+            if(timers[i].flag)
+            {
+                timers[i].counter++;
+            }
+        }// end inc timers counter
+
+    }// end 1 ms
+
 }// end SysTick_Handler
 
 
@@ -215,7 +224,20 @@ void Timer_SM(void)
  * */
 uint32_t Timer_Get_Sys_Tick(void)
 {
-    return systick_time;
+    __disable_irq();
+    uint32_t value = systick_time;
+    __enable_irq();
+    return value;
+}
+
+/**
+ * @brief get 100kHz clock tick (10 us)
+ * @return uint32_t us_timer counter value
+ *
+ * */
+uint32_t Timer_Get_10us_Tick(void)
+{
+    return us_delay_time;
 }
 
 /**
@@ -224,10 +246,24 @@ uint32_t Timer_Get_Sys_Tick(void)
  */
 void Delay_ms(uint32_t t)
 {
-    delay_time = 0;
-    while (delay_time < t)
+    uint32_t time = Timer_Get_Sys_Tick();
+    while(Timer_Get_Sys_Tick() < time + t)
     {
         asm volatile("nop");
     }
+
 }// end Delay_ms
 
+/**
+ * @brief Delay function in multiple of 10 us time. Not recommended (this function blocks the processor)
+ * @param t time to multiply by 10 us. Ex: it t = 5, blocks processor for 50 us.
+ */
+void Delay_10us(uint32_t t)
+{
+    uint32_t time = Timer_Get_10us_Tick();
+    while(Timer_Get_10us_Tick() < time + t)
+    {
+        asm volatile("nop");
+    }
+
+}// end Delay_10us

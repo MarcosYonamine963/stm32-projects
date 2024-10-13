@@ -1,10 +1,3 @@
-/*
- * gpio.h
- *
- *  Created on: Jul 28, 2024
- *      Author: Mc
- */
-
 #ifndef GPIO_H_
 #define GPIO_H_
 
@@ -21,8 +14,6 @@ typedef enum
     INPUT_PULL_UP,
     INPUT_PULL_DOWN
 }gpio_mode_e;
-
-
 
 void Gpio_Config(GPIO_TypeDef *GPIO, uint8_t Pin, gpio_mode_e mode);
 

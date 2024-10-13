@@ -1,14 +1,11 @@
-/*
- * uart.h
- *
- *  Created on: Sep 1, 2024
- *      Author: Mc
- */
-
 #ifndef UART_H_
 #define UART_H_
 
 #include "stm32f1xx.h"
+
+
+#define UART_MAIN           USART1
+#define UART_DEBUG          USART3
 
 /*
  * FOR STM32F103C8T6:
@@ -43,5 +40,7 @@ void Uart_Transmit(USART_TypeDef *UARTx, uint8_t *buffer, uint16_t length);
 
 uart_status_e Uart_Read_from_buffer(USART_TypeDef *UARTx, uint8_t *read_value);
 
+// Uart Debug function
+void debug_send_msg(uint8_t *msg, uint8_t size);
 
 #endif /* UART_H_ */

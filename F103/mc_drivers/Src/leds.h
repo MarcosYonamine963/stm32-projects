@@ -1,10 +1,3 @@
-/*
- * leds.h
- *
- *  Created on: Sep 14, 2024
- *      Author: Mc
- */
-
 #ifndef LEDS_H_
 #define LEDS_H_
 

@@ -1,18 +1,11 @@
-/**
- * @file circular_buffer.c
- * 
- * @brief his file provides firmware functions to use a circular buffer.
- * 
- */
-
 #include "circular_buffer.h"
 
 /**
  * @brief Writes a new data byte on a circular buffer.
  * 
- * @param circ_buffer_t Circular buffer that are going to receive new data.
- * @param byte Data to be written.
- * @return buffer_status_e Operation status, returns if the buffer is already
+ * @param buffer [IN]: Circular buffer to receive the new data.
+ * @param byte [IN]: Data to be written.
+ * @retval buffer_status_e: Operation status, returns if the buffer is
  *  full or if the data could be saved.
  */
 buffer_status_e Buffer_Write(volatile circ_buffer_t* buffer, uint8_t byte)
@@ -31,14 +24,14 @@ buffer_status_e Buffer_Write(volatile circ_buffer_t* buffer, uint8_t byte)
 	buffer->i_last = next_index;
 
 	return BUFFER_OK;
-}
+}// end Buffer_Write
 
 /**
  * @brief Reads the oldest byte saved on a circular buffer.
  * 
- * @param circ_buffer_t Circular buffer from where data will be read.
- * @param byte Pointer to the byte that must received the read data.
- * @return buffer_status_e Operation status, returns if the buffer is empty or
+ * @param buffer [IN]: Circular buffer from where data will be read.
+ * @param byte {OUT}: Pointer to the byte that must received the read data.
+ * @retval buffer_status_e: Operation status, returns if the buffer is empty or
  * if the data could be read.
  */
 buffer_status_e Buffer_Read(volatile circ_buffer_t* buffer, uint8_t * byte)
@@ -56,14 +49,14 @@ buffer_status_e Buffer_Read(volatile circ_buffer_t* buffer, uint8_t * byte)
 	} 
 
 	return BUFFER_OK;
-}
+}// end Buffer_Read
 
 /**
  * @brief Reads the newest byte saved on a circular buffer.
  * 
- * @param circ_buffer_t Circular buffer from where data will be read.
- * @param byte Pointer to the byte that must received the read data.
- * @return buffer_status_t Operation status, returns if the buffer is empty or
+ * @param buffer [IN]: Circular buffer from where data will be read.
+ * @param byte [OUT]: Pointer to the byte that must received the read data.
+ * @retval buffer_status_e: Operation status, returns if the buffer is empty or
  * if the data could be read.
  */
 buffer_status_e Buffer_Peek(volatile circ_buffer_t* buffer, uint8_t * byte)
@@ -78,7 +71,4 @@ buffer_status_e Buffer_Peek(volatile circ_buffer_t* buffer, uint8_t * byte)
     
     *byte = buffer->data[last_index];
     return BUFFER_OK;
-}
-
-
-
+}// end Buffer_Peek

@@ -1,6 +1,7 @@
 #include "uart.h"
 #include "sys_clock.h"
 #include "circular_buffer.h"
+#include "params.h"
 
 /*
  * Transmission Procedure:
@@ -36,6 +37,7 @@
  * */
 
 /* ####################################################### */
+
 
 /* PRIVATE VARIABLES */
 
@@ -358,3 +360,9 @@ void USART3_IRQHandler(void)
         Buffer_Write(&uart3_buffer, usart_byte_in);
     }
 }
+
+void debug_send_msg(uint8_t *msg, uint8_t size)
+{
+    if(params.debug_cfg & (1<<7))
+        Uart_Transmit(UART_DEBUG, msg, size);
+}// end debug_send_msg

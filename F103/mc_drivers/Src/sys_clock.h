@@ -1,10 +1,3 @@
-/*
- * sys_clock.h
- *
- *  Created on: Jul 21, 2024
- *      Author: Mc
- */
-
 #ifndef SYS_CLOCK_H_
 #define SYS_CLOCK_H_
 

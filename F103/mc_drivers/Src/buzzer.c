@@ -1,6 +1,11 @@
 #include "buzzer.h"
 #include "gpio.h"
 #include "timer.h"
+#include "params.h"
+#include "uart.h"
+#include "stdio.h"
+#include "string.h"
+
 
 /*
  * Sets the Buzzer ON or OFF
@@ -42,8 +47,33 @@ static buzzer_t buzzer;
 // count how many beeps already beeped to compare with the configured beep times
 static uint8_t beeps_counter = 0;
 
+// Debug message buffer
+static char msg[128];
+
 // private function, called by timer on config func
 static void Buzzer_Callback(void);
+
+/*
+ * @brief Send a debug message. If send_cr_lf = 1, send 0x0D 0x0A at end of string.
+ *
+ * @param msg [IN]: message string to send.
+ * @param len [IN]: message length
+ * @param send_cr_lf [IN]: 0 or 1. If 1, send 0x0D 0x0A at end of string.
+ * */
+static void Buzzer_Debug_Send(uint8_t *msg, uint8_t len, _Bool send_cr_lf)
+{
+    if( !( (params.debug_cfg) & (1<<3) ) )
+    {
+        return;
+    }
+
+    debug_send_msg(msg, len);
+    if(send_cr_lf)
+    {
+        debug_send_msg((uint8_t *)"\r\n", strlen("\r\n"));
+    }
+}
+
 
 /*
  * @brief Configure Buzzer with GPIO Port and Pin
@@ -68,31 +98,62 @@ void Buzzer_Config(GPIO_TypeDef *GPIOx, uint8_t Pin)
     Timer_Set(TIMER_BUZZER, TIME_50MS, Buzzer_Callback, TIMER_MODE_ALWAYS);
 }// end Buzzer_Config
 
+/*
+ * @brief Set the buzzer state machine to shot beeps.
+ *
+ * @param beeps [IN]: number of beeps to beep.
+ * */
 void Buzzer_short_beep(uint8_t beeps)
 {
+    sprintf((char *)msg, "Buzzer short beep: %d", beeps);
+    Buzzer_Debug_Send((uint8_t *)msg, strlen((char *)msg), 1);
+
     buzzer.beeps = beeps;
     beeps_counter = 0;
     buzzer.new_state = BUZZER_SHORT_BEEP;
 }
 
+/*
+ * @brief Set the buzzer state machine to long beeps.
+ *
+ * @param beeps [IN]: number of beeps to beep.
+ * */
 void Buzzer_long_beep(uint8_t beeps)
 {
+    sprintf((char *)msg, "Buzzer long beep: %d", beeps);
+    Buzzer_Debug_Send((uint8_t *)msg, strlen((char *)msg), 1);
+
     buzzer.beeps = beeps;
     beeps_counter = 0;
     buzzer.new_state = BUZZER_LONG_BEEP;
 }
 
+/*
+ * @brief Set the buzzer state machine to continuous ON.
+ *
+ * */
 void Buzzer_on(void)
 {
+    sprintf((char *)msg, "Buzzer ON");
+    Buzzer_Debug_Send((uint8_t *)msg, strlen((char *)msg), 1);
+
     buzzer.new_state = BUZZER_CONTINUOUS;
 }
 
+/*
+ * @brief Set the buzzer state machine to idle (off).
+ *
+ * */
 void Buzzer_off(void)
 {
+    sprintf((char *)msg, "Buzzer OFF");
+    Buzzer_Debug_Send((uint8_t *)msg, strlen((char *)msg), 1);
+
     buzzer.new_state = BUZZER_IDLE;
 }
 
 /*
+ * Buzzer State Machine.
  * Called by timer, on Always mode (every TIME_xxMS)
  * If in beep state, time_counter is incremented.
  * Spends BUZZER_xxxx_TIME in OFF, and BUZZER_xxxx_TIME in ON,

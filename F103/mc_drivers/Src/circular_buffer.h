@@ -1,12 +1,3 @@
-/**
- * @file circular_buffer.h
- * 
- * @brief This file contains all the functions prototypes and data types to 
- *          implement and use a circular buffer. Operations over a circular 
- *          buffer must be done ALWAYS using the predefined functions.
- * 
- */
-
 #ifndef __CIRCULAR_BUFFER_H__
 #define __CIRCULAR_BUFFER_H__
 

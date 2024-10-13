@@ -1,10 +1,3 @@
-/*
- * timer.c
- *
- *  Created on: Jul 17, 2024
- *  Author: Mc
- */
-
 #include "stm32f1xx.h"
 #include "timer.h"
 #include "sys_clock.h"  // Just to get system clock value

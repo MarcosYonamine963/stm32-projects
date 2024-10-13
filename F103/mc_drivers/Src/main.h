@@ -1,10 +1,3 @@
-/*
- * main.h
- *
- *  Created on: Aug 26, 2024
- *      Author: Mc
- */
-
 #ifndef MAIN_H_
 #define MAIN_H_
 
@@ -23,16 +16,14 @@
 #include "encoder.h"
 #include "tm1637_led_display.h"
 #include "my_clock.h"
+#include "mc_protocol.h"
 
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
-#define DEBUG_ENABLE        1   // uart debug transmissions. 1: enable. 0: disable
 
-#define UART_MAIN           USART1
-#define UART_DEBUG          USART3
 
 #define BUTTON0_PORT        GPIOB
 #define BUTTON0_PIN         14

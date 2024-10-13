@@ -1,7 +1,11 @@
 #include "my_clock.h"
 #include "rtc.h"
+#include "params.h"
+#include "uart.h"
+#include "stdio.h"
+#include "string.h"
 
-#define DEBUG_CLOCK     1
+#define DEBUG_CLOCK     0
 
 #if DEBUG_CLOCK
 #include "uart.h"
@@ -33,6 +37,72 @@ typedef struct
 
 // Main clock struct
 static clock_t clock;
+static char msg[128]; // Debug message
+
+
+static void My_Clock_Debug_Send_Time()
+{
+    uint8_t buffer[128];
+    sprintf((char*)buffer, "Time: %02d:%02d:%02d", clock.time.hour, clock.time.minute, clock.time.seconds);
+    debug_send_msg(buffer, strlen((char *)buffer));
+
+    if(clock.time.AM_PM == AM)
+    {
+        sprintf((char*)buffer, " AM\r\n");
+        debug_send_msg(buffer, strlen((char *)buffer));
+    }
+    else
+    {
+        sprintf((char*)buffer, " PM\r\n");
+        debug_send_msg(buffer, strlen((char *)buffer));
+    }
+}
+
+static void My_Clock_Debug_Send_Time_Seconds()
+{
+    if(params.debug_cfg & (1<<6))
+    {
+        My_Clock_Debug_Send_Time();
+    }
+}
+
+static  void My_Clock_Debug_Send_Time_Minutes()
+{
+    if(params.debug_cfg & (1<<5))
+    {
+        My_Clock_Debug_Send_Time();
+    }
+}
+
+static void My_Clock_Debug_Seconds_Send(uint8_t *msg, uint8_t len, _Bool send_cr_lf)
+{
+    if( !( (params.debug_cfg) & (1<<6) ) )
+    {
+        return;
+    }
+
+    debug_send_msg(msg, len);
+    if(send_cr_lf)
+    {
+        debug_send_msg((uint8_t *)"\r\n", strlen("\r\n"));
+    }
+
+}
+
+static void My_Clock_Debug_Minutes_Send(uint8_t *msg, uint8_t len, _Bool send_cr_lf)
+{
+    if( !( (params.debug_cfg) & (1<<5) ) )
+    {
+        return;
+    }
+
+    debug_send_msg(msg, len);
+    if(send_cr_lf)
+    {
+        debug_send_msg((uint8_t *)"\r\n", strlen("\r\n"));
+    }
+
+}
 
 
 static void My_Clock_Update_AM_PM()
@@ -126,11 +196,15 @@ void My_Clock_Set_Hour(uint8_t hour)
 
 void My_Clock_Set_Minute(uint8_t minute)
 {
+    sprintf((char *)msg, "Clock Minutes set to %d", minute);
+    My_Clock_Debug_Minutes_Send((uint8_t *)msg, strlen((char *)msg), 1);
     clock.time.minute = minute;
 }
 
 void My_Clock_Set_Seconds(uint8_t seconds)
 {
+    sprintf((char *)msg, "Clock Minutes set to %d", seconds);
+    My_Clock_Debug_Seconds_Send((uint8_t *)msg, strlen((char *)msg), 1);
     clock.time.seconds = seconds;
 }
 
@@ -143,6 +217,8 @@ void My_Clock_Set_HMS(uint8_t hour, uint8_t minute, uint8_t seconds)
 
 void My_Clock_Increment_Second(void)
 {
+    static _Bool cascate_debug_send_flag = 0;
+
     if( !(clock.control.flag_active) )
     {
         return;
@@ -153,24 +229,19 @@ void My_Clock_Increment_Second(void)
     {
         clock.time.seconds = 0;
         My_Clock_Increment_Minute();
+
+        // if debug minutes is on, cascate will occur
+        if(params.debug_cfg & (1<<5))
+        {
+            cascate_debug_send_flag = 1;
+        }
     }
 
-#if DEBUG_CLOCK
-    uint8_t buffer[128];
-    sprintf((char*)buffer, "Time: %02d:%02d:%02d", clock.time.hour, clock.time.minute, clock.time.seconds);
-    Uart_Transmit(USART3, buffer, strlen((char*)buffer));
-
-    if(clock.time.AM_PM == AM)
+    if(!cascate_debug_send_flag)
     {
-        sprintf((char*)buffer, " AM\r\n");
-        Uart_Transmit(USART3, buffer, strlen((char*)buffer));
+        My_Clock_Debug_Send_Time_Seconds();
     }
-    else
-    {
-        sprintf((char*)buffer, " PM\r\n");
-        Uart_Transmit(USART3, buffer, strlen((char*)buffer));
-    }
-#endif
+    cascate_debug_send_flag = 0;
 
 }
 
@@ -182,6 +253,8 @@ void My_Clock_Increment_Minute(void)
         clock.time.minute = 0;
         My_Clock_Increment_Hour();
     }
+    My_Clock_Debug_Send_Time_Minutes();
+
 }
 
 void My_Clock_Increment_Hour(void)
@@ -209,6 +282,8 @@ void My_Clock_Increment_Hour(void)
 
 void My_Clock_Decrement_Second(void)
 {
+    static _Bool cascate_debug_send_flag = 0;
+
     if( !(clock.control.flag_active) )
     {
         return;
@@ -218,28 +293,24 @@ void My_Clock_Decrement_Second(void)
     {
         clock.time.seconds = 59;
         My_Clock_Decrement_Minute();
+
+        // if debug minutes is on, cascate will occur
+        if(params.debug_cfg & (1<<5))
+        {
+            cascate_debug_send_flag = 1;
+        }
     }
     else
     {
         clock.time.seconds--;
     }
 
-#if DEBUG_CLOCK
-    uint8_t buffer[128];
-    sprintf((char*)buffer, "Time: %02d:%02d:%02d", clock.time.hour, clock.time.minute, clock.time.seconds);
-    Uart_Transmit(USART3, buffer, strlen((char*)buffer));
+    if(!cascate_debug_send_flag)
+    {
+        My_Clock_Debug_Send_Time_Seconds();
+    }
+    cascate_debug_send_flag = 0;
 
-    if(clock.time.AM_PM == AM)
-    {
-        sprintf((char*)buffer, " AM\r\n");
-        Uart_Transmit(USART3, buffer, strlen((char*)buffer));
-    }
-    else
-    {
-        sprintf((char*)buffer, " PM\r\n");
-        Uart_Transmit(USART3, buffer, strlen((char*)buffer));
-    }
-#endif
 }
 
 void My_Clock_Decrement_Minute(void)
@@ -253,6 +324,8 @@ void My_Clock_Decrement_Minute(void)
     {
         clock.time.minute--;
     }
+
+    My_Clock_Debug_Send_Time_Minutes();
 }
 
 void My_Clock_Decrement_Hour(void)

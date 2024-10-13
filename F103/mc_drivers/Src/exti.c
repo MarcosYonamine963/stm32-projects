@@ -1,11 +1,3 @@
-/*
- * exti.c
- *
- *  Created on: Aug 20, 2024
- *      Author: Mc
- */
-
-
 #include "exti.h"
 
 static uint16_t exti_used_lines_flags = 0;

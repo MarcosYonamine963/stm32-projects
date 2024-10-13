@@ -1,10 +1,3 @@
-/*
- * encoder.h
- *
- *  Created on: Sep 15, 2024
- *      Author: Mc
- */
-
 #ifndef ENCODER_H_
 #define ENCODER_H_
 

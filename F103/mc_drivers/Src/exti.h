@@ -1,10 +1,3 @@
-/*
- * exti.h
- *
- *  Created on: Aug 20, 2024
- *      Author: Mc
- */
-
 #ifndef EXTI_H_
 #define EXTI_H_
 

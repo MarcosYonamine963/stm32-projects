@@ -1,10 +1,3 @@
-/*
- * timer.h
- *
- *  Created on: Jul 17, 2024
- *      Author: Mc
- */
-
 #ifndef TIMER_H_
 #define TIMER_H_
 

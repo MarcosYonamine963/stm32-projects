@@ -1,10 +1,3 @@
-/*
- * button.h
- *
- *  Created on: Aug 22, 2024
- *      Author: Mc
- */
-
 #ifndef BUTTON_H_
 #define BUTTON_H_
 

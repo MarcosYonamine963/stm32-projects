@@ -1,11 +1,3 @@
-/*
- * gpio.c
- *
- *  Created on: Jul 28, 2024
- *      Author: Mc
- */
-
-
 #include "gpio.h"
 
 /*

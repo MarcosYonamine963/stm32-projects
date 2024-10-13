@@ -1,10 +1,3 @@
-/*
- * sys_clock.c
- *
- *  Created on: Jul 21, 2024
- *      Author: Mc
- */
-
 #include "stm32f1xx.h"
 #include "sys_clock.h"
 

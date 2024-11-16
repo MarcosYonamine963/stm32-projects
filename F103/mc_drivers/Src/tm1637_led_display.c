@@ -284,6 +284,16 @@ void TM1637_Display_Clear(tm1637_t *tm1637)
 }
 
 /*
+ * @brief Turn the display on (leds on). Don't change the dots leds
+ * */
+void TM1637_Display_On(tm1637_t *tm1637)
+{
+    tm1637->hours_digits_on = 1;
+    tm1637->minutes_digits_on = 1;
+    TM1637_Display_Update(tm1637);
+}
+
+/*
  * @brief Turn the Dots ON
  * */
 void TM1637_Dot_On(tm1637_t *tm1637)
@@ -356,6 +366,16 @@ void TM1637_Dot_Blink_Off(tm1637_t *tm1637)
     tm1637->dot_blink_on = 0;
 }
 
+void TM1637_Dot_Blink_Set_State(tm1637_t *tm1637, _Bool state)
+{
+    tm1637->dot_blink_on = state;
+}
+
+_Bool TM1637_Dot_Blink_Get_State(tm1637_t *tm1637)
+{
+    return tm1637->dot_blink_on;
+}
+
 void TM1637_Hour_Digit_Blink_On(tm1637_t *tm1637)
 {
     tm1637->hours_digits_blink_on = 1;
@@ -366,6 +386,16 @@ void TM1637_Hour_Digit_Blink_Off(tm1637_t *tm1637)
     tm1637->hours_digits_blink_on = 0;
 }
 
+void TM1637_Hour_Digit_Blink_Set_State(tm1637_t *tm1637, _Bool state)
+{
+    tm1637->hours_digits_blink_on = state;
+}
+
+_Bool TM1637_Hour_Digit_Blink_Get_State(tm1637_t *tm1637)
+{
+    return tm1637->hours_digits_blink_on;
+}
+
 void TM1637_Minute_Digit_Blink_On(tm1637_t *tm1637)
 {
     tm1637->minutes_digits_blink_on = 1;
@@ -374,4 +404,14 @@ void TM1637_Minute_Digit_Blink_On(tm1637_t *tm1637)
 void TM1637_Minute_Digit_Blink_Off(tm1637_t *tm1637)
 {
     tm1637->minutes_digits_blink_on = 0;
+}
+
+void TM1637_Minute_Digit_Blink_Set_State(tm1637_t *tm1637, _Bool state)
+{
+    tm1637->minutes_digits_blink_on = state;
+}
+
+_Bool TM1637_Minute_Digit_Blink_Get_State(tm1637_t *tm1637)
+{
+    return tm1637->minutes_digits_blink_on;
 }

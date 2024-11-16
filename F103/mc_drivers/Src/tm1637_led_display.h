@@ -43,14 +43,21 @@ typedef struct
 void TM1637_Init(tm1637_t *tm1637);
 void TM1637_Set_Brightness(tm1637_t *tm1637, uint8_t brightness);
 void TM1637_Display_Clear(tm1637_t *tm1637);
+void TM1637_Display_On(tm1637_t *tm1637);
 void TM1637_Display_Number(tm1637_t *tm1637, uint16_t number);
 void TM1637_Display_Clock(tm1637_t *tm1637, uint8_t H, uint8_t M);
 void TM1637_Dot_Blink_On(tm1637_t *tm1637);
 void TM1637_Dot_Blink_Off(tm1637_t *tm1637);
+void TM1637_Dot_Blink_Set_State(tm1637_t *tm1637, _Bool state);
+_Bool TM1637_Dot_Blink_Get_State(tm1637_t *tm1637);
 void TM1637_Hour_Digit_Blink_On(tm1637_t *tm1637);
 void TM1637_Hour_Digit_Blink_Off(tm1637_t *tm1637);
+void TM1637_Hour_Digit_Blink_Set_State(tm1637_t *tm1637, _Bool state);
+_Bool TM1637_Hour_Digit_Blink_Get_State(tm1637_t *tm1637);
 void TM1637_Minute_Digit_Blink_On(tm1637_t *tm1637);
 void TM1637_Minute_Digit_Blink_Off(tm1637_t *tm1637);
+void TM1637_Minute_Digit_Blink_Set_State(tm1637_t *tm1637, _Bool state);
+_Bool TM1637_Minute_Digit_Blink_Get_State(tm1637_t *tm1637);
 
 // MAIN STATE MACHINE FUNCTION
 void TM1637_SM(tm1637_t *tm1637);

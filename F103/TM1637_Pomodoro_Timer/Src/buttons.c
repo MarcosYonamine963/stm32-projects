@@ -147,7 +147,7 @@ static void button1_deb_callback(void)
             Uart_Transmit(USART1, (uint8_t *)"Button 1 Pressed\r\n", 18);
             #endif
 
-            (button0_press_callback)();
+            (button1_press_callback)();
 
             Timer_Set(TIMER_BUTTON1_LONG_PRESS, TIME_2S, _button1_long_press_callback, TIMER_MODE_ONCE);
 

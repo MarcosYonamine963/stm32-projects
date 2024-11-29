@@ -31,51 +31,69 @@ void Leds_Config(void)
 
 
 
-void Leds_Onboard_Led_ON(void)
+uint8_t Leds_Onboard_Led_ON()
 {
     Gpio_Digital_Write(LED_ONBOARD_PORT, LED_ONBOARD_PIN, 0);
+
+    return 0;
 }
 
-void Leds_Onboard_Led_OFF(void)
+uint8_t Leds_Onboard_Led_OFF()
 {
     Gpio_Digital_Write(LED_ONBOARD_PORT, LED_ONBOARD_PIN, 1);
+
+    return 0;
 }
 
-void Leds_Onboard_Led_Toggle(void)
+uint8_t Leds_Onboard_Led_Toggle()
 {
     Gpio_Digital_Write(LED_ONBOARD_PORT, LED_ONBOARD_PIN, \
             Gpio_Digital_Read(LED_ONBOARD_PORT, LED_ONBOARD_PIN) ^ 1 );
+
+    return 0;
 }
 
-void Leds_Red_Led_ON(void)
+uint8_t Leds_Red_Led_ON()
 {
     Gpio_Digital_Write(LED_RED_PORT, LED_RED_PIN, 1);
+
+    return 0;
 }
 
-void Leds_Red_Led_OFF(void)
+uint8_t Leds_Red_Led_OFF()
 {
     Gpio_Digital_Write(LED_RED_PORT, LED_RED_PIN, 0);
+
+    return 0;
 }
 
-void Leds_Red_Led_Toggle(void)
+uint8_t Leds_Red_Led_Toggle()
 {
     Gpio_Digital_Write(LED_RED_PORT, LED_RED_PIN, \
             Gpio_Digital_Read(LED_RED_PORT, LED_RED_PIN) ^ 1 );
+
+    return 0;
 }
 
-void Leds_Green_Led_ON(void)
+uint8_t Leds_Green_Led_ON()
 {
     Gpio_Digital_Write(LED_GREEN_PORT, LED_GREEN_PIN, 1);
+
+    return 0;
 }
 
-void Leds_Green_Led_OFF(void)
+uint8_t Leds_Green_Led_OFF()
 {
     Gpio_Digital_Write(LED_GREEN_PORT, LED_GREEN_PIN, 0);
+
+    return 0;
 }
 
-void Leds_Green_Led_Toggle(void)
+uint8_t Leds_Green_Led_Toggle()
 {
     Gpio_Digital_Write(LED_GREEN_PORT, LED_GREEN_PIN, \
             Gpio_Digital_Read(LED_GREEN_PORT, LED_GREEN_PIN) ^ 1 );
+
+    return 0;
 }
 

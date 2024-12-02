@@ -1,9 +1,10 @@
-/*
- * Module for Serial Communication
- */
-
 #ifndef SERIAL_H_
 #define SERIAL_H_
+
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
 
 #include <stdint.h>
 
@@ -23,5 +24,10 @@ serial_status_e Serial_Read_Data(uint8_t *data);
 void Serial_Force_Send_Text(char *text);
 
 void Serial_SM(void);
+
+
+#ifdef  __cplusplus
+}
+#endif
 
 #endif /* SERIAL_H_ */

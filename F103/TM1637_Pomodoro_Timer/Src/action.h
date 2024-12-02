@@ -1,6 +1,11 @@
 #ifndef ACTION_H_
 #define ACTION_H_
 
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 
 typedef enum
@@ -21,6 +26,10 @@ uint8_t ExecutaAcao(uint8_t numeroDaAcao, uint8_t evento);
 uint8_t GetNumAcoes(uint8_t numero_do_evento);
 void GetAcoes(uint8_t numero_do_evento, uint8_t numero_de_acoes, uint8_t *vetorAcoes);
 
+
+#ifdef  __cplusplus
+}
+#endif
 
 
 #endif /* ACTION_H_ */

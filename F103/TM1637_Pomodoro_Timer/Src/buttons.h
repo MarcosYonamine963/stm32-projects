@@ -1,6 +1,10 @@
 #ifndef BUTTONS_H_
 #define BUTTONS_H_
 
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
 
 typedef enum
 {
@@ -22,5 +26,10 @@ void Button_Config(button_e BUTTONx, Button_CallbackFunc_t press_callback, Butto
 button_state_e Button_Get_State(button_e BUTTONx);
 void Button_Enable(button_e BUTTONx);
 void Button_Disable(button_e BUTTONx);
+
+
+#ifdef  __cplusplus
+}
+#endif
 
 #endif /* BUTTONS_H_ */

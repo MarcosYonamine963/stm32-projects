@@ -25,15 +25,19 @@ int main(void)
 
     // Serial Communication
     Serial_Config(19200);
+    Serial_Send_Text("Uart Serial configured\r\n");
 
     // Leds
     Leds_Config();
+    Serial_Send_Text("Leds configured\r\n");
 
     // Events and Actions
     Action_Config();
+    Serial_Send_Text("Events and Actions configured\r\n");
 
     // I2C config
     I2C1_Config(I2C1_PIN_REMAP_NO);
+    Serial_Send_Text("I2C1 configured\r\n");
 
     Serial_Send_Text("System Init Complete\r\n");
 

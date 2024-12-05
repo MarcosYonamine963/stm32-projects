@@ -1,3 +1,23 @@
+/**
+ ******************************************************************************
+ * @file      action.c
+ * @author    McL
+ * @date      2024-12-05
+ * @brief     Event and Action management
+ *
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) Marcos Yonamine.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
+
 #include "action.h"
 #include "leds.h"
 #include "buttons.h"
@@ -61,6 +81,10 @@ static void Action_Button1_Release_Callback(void);
 static void Action_Button1_Long_Press_Callback(void);
 static void Action_Button1_Long_Release_Callback(void);
 
+/**
+ * @brief Configure the actions for each event
+ *
+ */
 void Action_Config(void)
 {
     // Configura a Tabela de Acoes
@@ -118,7 +142,11 @@ void Action_Config(void)
     action_evt_conf_len = i;
 }
 
-
+/**
+ * @brief Action State Machine.
+ *
+ * Run this function inside embedded loop.
+ */
 void Action_SM(void)
 {
     uint8_t dummy;
@@ -131,6 +159,12 @@ void Action_SM(void)
 
 //==========   Callbacks dos Botoes   ===============// // TODO
 
+
+/**
+ * @brief  Callback Function for BUTTON0
+ *  Called when BUTTON0 is pressed
+ *
+ */
 static void Action_Button0_Press_Callback(void)
 {
 //    uint8_t act_quant = 0;
